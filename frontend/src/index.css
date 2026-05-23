@@ -1,0 +1,460 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-red: #c8000a;
+  --color-brand-red-mid: #e8131f;
+  --color-brand-red-light: #ff3a44;
+  --color-brand-ink: #1a1008;
+  --color-brand-brown: #3d2b1f;
+  --color-brand-brown-lt: #6b4c35;
+  --color-brand-cream: #faf8f4;
+  --color-brand-parchment: #ede5d0;
+  --font-display: "Sora", sans-serif;
+  --font-body: "Outfit", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply m-0 min-h-screen bg-brand-cream font-body text-brand-ink antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    letter-spacing: -0.04em;
+  }
+
+  img,
+  video {
+    max-width: 100%;
+  }
+}
+
+@layer utilities {
+  .text-gradient-brand {
+    @apply bg-gradient-to-r from-brand-red via-brand-red-mid to-brand-red-light bg-clip-text text-transparent;
+  }
+
+  .glass-light {
+    @apply border border-black/5 bg-white/90;
+  }
+
+  .form-input {
+    @apply w-full rounded-xl border border-brand-ink/10 bg-white px-4 py-3 text-brand-ink outline-none transition placeholder:text-brand-brown-lt/60 focus:border-brand-ink/30 focus:ring-2 focus:ring-brand-ink/10;
+  }
+
+  .section-pad {
+    @apply px-5 py-20 lg:px-8 lg:py-24;
+  }
+
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 600px;
+  }
+
+  /* Lightweight reveal — GPU-friendly (opacity + translate only) */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.5s ease,
+      transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .hero-enter {
+    animation: hero-fade 0.7s ease forwards;
+  }
+
+  .scroll-hint {
+    animation: scroll-bob 2s ease-in-out infinite;
+  }
+
+  .progress-track {
+    @apply h-2 overflow-hidden rounded-full bg-brand-brown/10;
+  }
+
+  .progress-fill {
+    @apply h-full rounded-full bg-brand-ink transition-[width] duration-700 ease-out;
+  }
+
+  .team-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .team-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(26, 16, 8, 0.1);
+  }
+
+  .team-card-bio {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .project-card-summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .stat-item {
+    animation: stat-in 0.55s ease backwards;
+    animation-delay: calc(var(--stat-i, 0) * 0.08s + 0.15s);
+  }
+
+  /* Admin login — CSS-only motion */
+  .login-page {
+    background: #0a0806;
+  }
+
+  .login-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.45;
+    pointer-events: none;
+  }
+
+  .login-orb-a {
+    width: 420px;
+    height: 420px;
+    top: -10%;
+    left: -5%;
+    background: radial-gradient(circle, #c8000a 0%, transparent 70%);
+    animation: login-drift-a 14s ease-in-out infinite;
+  }
+
+  .login-orb-b {
+    width: 360px;
+    height: 360px;
+    bottom: -5%;
+    right: 10%;
+    background: radial-gradient(circle, #3d2b1f 0%, transparent 70%);
+    animation: login-drift-b 18s ease-in-out infinite;
+  }
+
+  .login-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black, transparent);
+  }
+
+  .login-brand {
+    background: linear-gradient(160deg, #1a1008 0%, #2a1810 50%, #1a1008 100%);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .login-brand-shine {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 40%,
+      rgba(200, 0, 10, 0.08) 50%,
+      transparent 60%
+    );
+    animation: login-shine 6s ease-in-out infinite;
+  }
+
+  .login-logo-wrap {
+    animation: login-float 4s ease-in-out infinite;
+  }
+
+  .login-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+  }
+
+  .login-card-glow {
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(200, 0, 10, 0.35),
+      transparent 40%,
+      transparent 60%,
+      rgba(255, 255, 255, 0.08)
+    );
+    z-index: -1;
+    opacity: 0.6;
+    animation: login-border-pulse 4s ease-in-out infinite;
+  }
+
+  .login-form-enter {
+    animation: login-fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  }
+
+  .login-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
+
+  .login-btn {
+    background: linear-gradient(135deg, #c8000a, #e8131f);
+    box-shadow: 0 8px 24px rgba(200, 0, 10, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .login-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(200, 0, 10, 0.45);
+  }
+
+  .field-shake {
+    animation: field-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+
+  .back-to-top {
+    animation: back-to-top-in 0.35s ease;
+  }
+
+  /* Dynamic Island navbar */
+  .nav-island-bar {
+    transition:
+      max-width 0.65s cubic-bezier(0.32, 0.72, 0, 1),
+      min-height 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      padding 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      border-radius 0.55s cubic-bezier(0.32, 0.72, 0, 1),
+      box-shadow 0.45s ease,
+      background-color 0.4s ease,
+      border-color 0.4s ease;
+  }
+
+  .nav-island-bar[data-state="expanded"] {
+    max-width: 80rem;
+  }
+
+  .nav-island-bar[data-state="compact"] {
+    max-width: min(38rem, calc(100vw - 2rem));
+  }
+}
+
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes back-to-top-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes stat-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes login-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(40px, 30px) scale(1.08);
+  }
+}
+
+@keyframes login-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-30px, -20px);
+  }
+}
+
+@keyframes login-shine {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: translateX(-20%);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateX(20%);
+  }
+}
+
+@keyframes login-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes login-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes login-border-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.75;
+  }
+}
+
+@keyframes field-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  15% {
+    transform: translateX(-8px);
+  }
+  30% {
+    transform: translateX(8px);
+  }
+  45% {
+    transform: translateX(-5px);
+  }
+  60% {
+    transform: translateX(5px);
+  }
+  75% {
+    transform: translateX(-2px);
+  }
+}
+
+@keyframes scroll-bob {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .hero-enter,
+  .scroll-hint {
+    animation: none;
+  }
+
+  .progress-fill {
+    transition: none;
+  }
+
+  .team-card {
+    transition: none;
+  }
+
+  .stat-item,
+  .login-orb,
+  .login-brand-shine,
+  .login-logo-wrap,
+  .login-form-enter,
+  .login-card-glow,
+  .field-shake {
+    animation: none;
+  }
+
+  .login-btn:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .nav-island-bar {
+    transition: none;
+  }
+}
+
+/* Team member profile — portfolio-style hero */
+.profile-hero-bg {
+  background: linear-gradient(135deg, #d8f0ec 0%, #d8f0ec 38%, #ffffff 38%);
+}
+
+.profile-photo-stage {
+  isolation: isolate;
+}
+
+.profile-float-tag {
+  animation: profile-float 4.5s ease-in-out infinite;
+  z-index: 5;
+  pointer-events: none;
+}
+
+@keyframes profile-float {
+  0%,
+  100% {
+    margin-top: 0;
+  }
+  50% {
+    margin-top: -6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-float-tag {
+    animation: none;
+  }
+}
