@@ -1,13 +1,11 @@
+import { ArrowRight } from "lucide-react";
 import ScrollLink from "../navigation/ScrollLink";
-
-const heroBtn =
-  "inline-flex shrink-0 items-center justify-center rounded-full px-6 py-3 text-sm font-bold transition sm:px-7";
 
 function HeroMedia({ hero }) {
   if (hero.mediaType === "video" && hero.mediaUrl) {
     return (
       <video
-        className="h-full w-full object-cover"
+        className="h-full w-full scale-105 object-cover"
         src={hero.mediaUrl}
         autoPlay
         muted
@@ -20,7 +18,7 @@ function HeroMedia({ hero }) {
 
   return (
     <img
-      className="h-full w-full object-cover"
+      className="h-full w-full scale-105 object-cover"
       src={hero.mediaUrl}
       alt={hero.mediaAlt}
       fetchPriority="high"
@@ -29,45 +27,94 @@ function HeroMedia({ hero }) {
   );
 }
 
+function HeroCta({ action, variant = "primary" }) {
+  const label = action.label;
+  const href = action.href;
+  const isPrimary = variant === "primary";
+
+  const className = isPrimary
+    ? "inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3.5 text-sm font-bold text-brand-ink shadow-[0_4px_24px_rgba(0,0,0,0.2)] transition hover:bg-brand-cream hover:shadow-[0_6px_28px_rgba(0,0,0,0.25)] sm:px-8"
+    : "inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/40 bg-white/5 px-7 py-3.5 text-sm font-bold text-white backdrop-blur-sm transition hover:border-white/70 hover:bg-white/15 sm:px-8";
+
+  const content = (
+    <>
+      {label}
+      {isPrimary ? <ArrowRight size={18} aria-hidden /> : null}
+    </>
+  );
+
+  if (href.startsWith("/")) {
+    return (
+      <ScrollLink to={href} className={className}>
+        {content}
+      </ScrollLink>
+    );
+  }
+
+  return (
+    <a href={href} className={className}>
+      {content}
+    </a>
+  );
+}
+
 export default function HeroSection({ hero }) {
+  const primary = {
+    label: hero.primaryAction?.label || "Be Involved",
+    href: hero.primaryAction?.href || "#projects"
+  };
+
+  const secondaryHref = hero.secondaryAction?.href;
+  const secondary = {
+    label:
+      hero.secondaryAction?.label && secondaryHref !== "#about"
+        ? hero.secondaryAction.label
+        : "Contact",
+    href: secondaryHref && secondaryHref !== "#about" ? secondaryHref : "/contact"
+  };
+
   return (
     <section id="home" className="relative min-h-[100svh] overflow-hidden bg-brand-ink">
       <div className="absolute inset-0">
         <HeroMedia hero={hero} />
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-brand-ink/75 via-brand-ink/35 to-brand-ink/90" />
+      <div
+        className="absolute inset-0 bg-gradient-to-b from-brand-ink/80 via-brand-ink/40 to-brand-ink/95"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 bg-[radial-gradient(ellipse_80%_60%_at_50%_0%,rgba(196,30,58,0.12),transparent_55%)]"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-brand-ink via-brand-ink/80 to-transparent"
+        aria-hidden
+      />
 
-      <div className="hero-enter relative z-10 mx-auto flex min-h-[100svh] w-full max-w-7xl flex-col justify-end px-5 pb-36 pt-40 sm:pb-40 lg:px-8 lg:pb-44">
-        <p className="mb-4 inline-flex w-fit rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-white/90">
-          {hero.eyebrow}
-        </p>
+      <div className="hero-enter relative z-10 mx-auto flex min-h-[100svh] w-full max-w-7xl flex-col justify-center px-5 pb-44 pt-32 sm:pb-48 sm:pt-36 lg:px-8 lg:pb-52">
+        <div className="max-w-3xl">
+          {hero.eyebrow ? (
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white/90 backdrop-blur-sm sm:text-xs">
+              <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-red-light" aria-hidden />
+              {hero.eyebrow}
+            </p>
+          ) : null}
 
-        <h1 className="max-w-5xl font-display text-[clamp(2.5rem,8vw,5.5rem)] font-extrabold leading-[0.92] tracking-tight text-white">
-          {hero.title || "Mr Vilz"}
-        </h1>
+          <h1 className="mt-5 font-display text-[clamp(2.75rem,9vw,5.25rem)] font-extrabold leading-[0.95] tracking-tight text-white sm:mt-6">
+            {hero.title || "Mr Vilz"}
+          </h1>
 
-        <p className="mt-5 max-w-2xl text-base text-white/80 sm:text-lg">{hero.subtitle}</p>
+          {hero.subtitle ? (
+            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:mt-6 sm:text-lg sm:leading-relaxed">
+              {hero.subtitle}
+            </p>
+          ) : null}
 
-        <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <a
-            href={hero.primaryAction?.href || "#projects"}
-            className={`${heroBtn} bg-white text-brand-ink shadow-md hover:bg-brand-cream`}
-          >
-            {hero.primaryAction?.label || "Be Involved"}
-          </a>
-          <ScrollLink
-            to="/discover"
-            className={`${heroBtn} border-2 border-white/50 bg-brand-ink/30 text-white backdrop-blur-sm hover:border-white hover:bg-brand-ink/50`}
-          >
-            AI Discover
-          </ScrollLink>
-          <a
-            href={hero.secondaryAction?.href || "#about"}
-            className={`${heroBtn} border-2 border-white/35 bg-transparent text-white hover:border-white/60 hover:bg-white/10`}
-          >
-            {hero.secondaryAction?.label || "About Us"}
-          </a>
+          <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center">
+            <HeroCta action={primary} variant="primary" />
+            <HeroCta action={secondary} variant="secondary" />
+          </div>
         </div>
       </div>
     </section>

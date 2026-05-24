@@ -11,12 +11,13 @@ const navItems = [
   { label: "Projects", to: "/#projects", section: "projects" },
   { label: "Gallery", to: "/gallery" },
   { label: "Careers", to: "/careers" },
-  { label: "Discover", to: "/discover" },
+  { label: "Discover", to: "/discover", hideOnMobile: true },
   { label: "Contact", to: "/contact" }
 ];
 
 function NavItem({ item, active, pillClass, activePill }) {
-  const className = `${pillClass} ${active ? activePill : ""}`;
+  const visibility = item.hideOnMobile ? "hidden sm:inline-flex" : "";
+  const className = `${pillClass} ${visibility} ${active ? activePill : ""}`;
   const aria = active ? { "aria-current": "page" } : {};
 
   if (item.section && item.section !== "home") {

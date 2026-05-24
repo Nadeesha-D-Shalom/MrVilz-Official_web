@@ -45,7 +45,7 @@ export default function TeamSection({ team = [] }) {
           description="Four leaders guiding conservation, media, operations, and creative production at Mr Vilz."
         />
 
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
+        <div className="mt-10 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
           {coreTeam.map((member) => (
             <TeamCard key={member.id || member.name} member={member} />
           ))}

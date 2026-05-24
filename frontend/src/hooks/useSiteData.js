@@ -7,7 +7,7 @@ const defaultData = {
     title: "Mr Vilz",
     subtitle: "We are striving to protect the marine environment of Sri Lanka.",
     primaryAction: { label: "Be Involved", href: "#projects" },
-    secondaryAction: { label: "About Us", href: "#about" },
+    secondaryAction: { label: "Contact", href: "/contact" },
     mediaType: "image",
     mediaUrl: "/images/background.png",
     mediaAlt: "Mr Vilz hero background"

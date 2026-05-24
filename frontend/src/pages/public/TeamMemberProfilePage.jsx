@@ -1,45 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  ArrowLeft,
-  ArrowUpRight,
-  GraduationCap,
-  Mail,
-  Sparkles
-} from "lucide-react";
+import { ArrowLeft, MapPin, Briefcase, GraduationCap, Mail } from "lucide-react";
 import api from "../../api/client";
 import { mergeTeamProfile } from "../../config/teamProfiles";
 import { useSite } from "../../context/SiteDataContext";
 import { teamMemberSlug } from "../../utils/team";
-import LazyImage from "../../components/ui/LazyImage";
 
-const TAG_ORBIT = [
-  "top-0 left-0 -translate-x-1 sm:translate-x-0",
-  "top-1 right-0 translate-x-1 sm:translate-x-0",
-  "left-0 top-[20%] -translate-x-full",
-  "right-0 top-[20%] translate-x-full",
-  "left-0 bottom-[22%] -translate-x-full",
-  "bottom-0 right-0 translate-x-1 sm:translate-x-0"
-];
+function SocialIconRow({ links, variant = "dark" }) {
+  if (!links?.length) return null;
+  const isLight = variant === "light";
 
-function FloatingTag({ tag, delay = 0, orbitClass }) {
-  const Icon = tag.icon;
   return (
-    <span
-      className={`profile-float-tag absolute hidden max-w-[11rem] rounded-full border border-white/70 bg-white/95 px-3 py-2 text-xs font-bold text-brand-ink shadow-lg backdrop-blur-sm sm:inline-flex sm:items-center sm:gap-2 ${orbitClass}`}
-      style={{ animationDelay: `${delay}ms` }}
-    >
-      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand-red/10 text-brand-red">
-        <Icon size={14} />
-      </span>
-      {tag.label}
-    </span>
-  );
-}
-
-function SocialLinksRow({ links }) {
-  return (
-    <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:justify-start">
+    <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
       {links.map((link) => {
         const Icon = link.icon;
         return (
@@ -48,14 +20,28 @@ function SocialLinksRow({ links }) {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 rounded-full border border-brand-ink/10 bg-white px-3.5 py-2 text-xs font-bold text-brand-ink transition hover:border-brand-red/30 hover:text-brand-red"
+            aria-label={link.label}
+            className={`inline-flex h-10 w-10 items-center justify-center rounded-full transition ${
+              isLight
+                ? "bg-white/15 text-white hover:bg-white/25"
+                : "bg-brand-ink/5 text-brand-ink hover:bg-brand-red/10 hover:text-brand-red"
+            }`}
           >
-            <Icon size={15} />
-            {link.label}
+            <Icon size={18} />
           </a>
         );
       })}
     </div>
+  );
+}
+
+function DetailRow({ label, children }) {
+  if (!children) return null;
+  return (
+    <p className="text-sm leading-relaxed text-brand-brown">
+      <span className="font-bold text-brand-ink">{label}: </span>
+      {children}
+    </p>
   );
 }
 
@@ -102,19 +88,23 @@ export default function TeamMemberProfilePage() {
 
   if (loading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-brand-cream">
-        <div className="h-12 w-12 animate-pulse rounded-full bg-brand-parchment" />
+      <main className="min-h-screen bg-[#f0ebe3] px-5 pb-16 pt-28">
+        <div className="mx-auto max-w-6xl animate-pulse space-y-8">
+          <div className="mx-auto h-10 w-48 rounded-lg bg-brand-parchment" />
+          <div className="grid gap-8 lg:grid-cols-12">
+            <div className="order-1 h-80 rounded bg-brand-parchment lg:order-3 lg:col-span-4" />
+            <div className="order-2 h-48 rounded bg-brand-parchment lg:order-1 lg:col-span-3" />
+            <div className="order-3 h-64 rounded bg-brand-parchment lg:order-2 lg:col-span-5" />
+          </div>
+        </div>
       </main>
     );
   }
 
   if (notFound || !profile) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-brand-cream px-5 text-center">
+      <main className="flex min-h-screen flex-col items-center justify-center bg-[#f0ebe3] px-5 text-center">
         <h1 className="font-display text-3xl font-extrabold text-brand-ink">Profile not found</h1>
-        <p className="mt-3 max-w-md text-brand-brown-lt">
-          This team member profile does not exist or is no longer available.
-        </p>
         <Link
           to="/team-members"
           className="mt-8 inline-flex items-center gap-2 rounded-full bg-brand-ink px-6 py-3 text-sm font-bold text-white"
@@ -125,148 +115,156 @@ export default function TeamMemberProfilePage() {
     );
   }
 
-  const hasContact = profile.email || profile.socialLinks.length > 0;
+  const aboutParagraphs = [profile.summary, member?.bio].filter(
+    (p, i, arr) => p && arr.indexOf(p) === i
+  );
+  const contactHref = profile.email ? `mailto:${profile.email}` : "/contact";
 
   return (
-    <main className="min-h-screen bg-white">
-      <section className="profile-hero relative overflow-x-clip pb-16 pt-28 sm:pb-20 sm:pt-32">
-        <div className="profile-hero-bg absolute inset-0" aria-hidden />
-
+    <main className="min-h-screen bg-[#f0ebe3] pb-16 pt-24 sm:pt-28">
+      <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <Link
           to="/team-members"
-          className="absolute left-5 top-24 z-20 inline-flex items-center gap-2 rounded-full border border-brand-ink/10 bg-white/90 px-3.5 py-2 text-sm font-semibold text-brand-brown-lt shadow-sm backdrop-blur-sm transition hover:border-brand-ink/20 hover:text-brand-ink sm:left-8 sm:top-28 lg:left-10"
+          className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-brown-lt transition hover:text-brand-ink"
         >
           <ArrowLeft size={16} /> All team members
         </Link>
 
-        <div className="relative mx-auto max-w-6xl px-5 lg:px-8">
-          <div className="flex flex-col items-center pt-6 text-center sm:pt-8">
-            <div className="profile-photo-stage relative mx-auto h-[min(92vw,400px)] w-[min(92vw,400px)] sm:h-[460px] sm:w-[460px]">
-              {profile.tags.map((tag, index) => (
-                <FloatingTag
-                  key={tag.label}
-                  tag={tag}
-                  delay={index * 120}
-                  orbitClass={TAG_ORBIT[index % TAG_ORBIT.length]}
+        <header className="mb-10 text-center lg:mb-14">
+          <h1 className="font-display text-4xl font-extrabold tracking-tight text-brand-red sm:text-5xl lg:text-6xl">
+            Profile
+          </h1>
+          <p className="mt-3 text-base font-medium text-brand-ink sm:text-lg">
+            I&apos;m {profile.position}
+          </p>
+        </header>
+
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-10 lg:items-start">
+          {/* Card — top on mobile, right on desktop */}
+          <aside className="order-1 lg:order-3 lg:col-span-4">
+            <div className="relative mx-auto w-full max-w-xs pt-14 sm:max-w-sm lg:mx-0 lg:max-w-none lg:pt-16">
+              <div className="absolute left-1/2 top-0 z-10 h-28 w-28 -translate-x-1/2 overflow-hidden rounded-full border-4 border-white bg-brand-parchment shadow-lg sm:h-32 sm:w-32">
+                <img
+                  src={profile.imageUrl}
+                  alt={profile.name}
+                  fetchPriority="high"
+                  loading="eager"
+                  decoding="async"
+                  width={128}
+                  height={128}
+                  className="h-full w-full object-cover"
                 />
-              ))}
-              <div className="absolute left-1/2 top-1/2 z-10 h-[68%] w-[68%] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full border-[6px] border-white shadow-[0_30px_80px_rgba(26,16,8,0.18)]">
-                <LazyImage src={profile.imageUrl} alt={profile.name} aspectClass="h-full w-full" />
+              </div>
+
+              <div className="rounded-sm bg-brand-red px-6 pb-8 pt-20 text-center text-white shadow-xl sm:px-8 sm:pt-24">
+                <p className="font-display text-lg font-extrabold uppercase tracking-wide sm:text-xl">
+                  Hello, I&apos;m {profile.greetingName}
+                </p>
+                <p className="mx-auto mt-4 max-w-xs text-sm leading-relaxed text-white/90">
+                  {profile.summary}
+                </p>
+                {profile.socialLinks.length > 0 ? (
+                  <div className="mt-8">
+                    <SocialIconRow links={profile.socialLinks} variant="light" />
+                  </div>
+                ) : null}
               </div>
             </div>
 
-            <p className="mt-10 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-[0.22em] text-brand-red">
-              <Sparkles size={14} />
-              Hi there, I&apos;m {profile.greetingName}
-            </p>
+            <ul className="mx-auto mt-6 max-w-xs space-y-2.5 text-sm text-brand-brown lg:mx-0 lg:max-w-none">
+              {profile.email ? (
+                <li className="flex items-center gap-2">
+                  <Mail size={16} className="shrink-0 text-brand-red" />
+                  <a href={`mailto:${profile.email}`} className="truncate hover:text-brand-red">
+                    {profile.email}
+                  </a>
+                </li>
+              ) : null}
+              <li className="flex items-center gap-2">
+                <Briefcase size={16} className="shrink-0 text-brand-red" />
+                <span>Mr Vilz</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <MapPin size={16} className="shrink-0 text-brand-red" />
+                <span>Sri Lanka</span>
+              </li>
+            </ul>
+          </aside>
 
-            <h1 className="mt-4 max-w-3xl font-display text-[clamp(2rem,5vw,3.5rem)] font-extrabold leading-tight text-brand-ink">
-              {profile.name}
-            </h1>
-
-            <p className="mt-3 text-sm font-semibold text-brand-red sm:text-base">{profile.position}</p>
-
-            <p className="mt-6 max-w-xl text-sm leading-relaxed text-brand-brown-lt sm:text-base">
-              {profile.summary}
-            </p>
-
-            {profile.highlights?.length > 0 ? (
-              <ul className="mt-6 max-w-xl space-y-2 text-left sm:text-center">
-                {profile.highlights.map((item) => (
-                  <li
-                    key={item}
-                    className="flex items-start justify-center gap-2 text-sm text-brand-brown-lt sm:justify-center"
-                  >
-                    <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-red" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-
-            {hasContact ? (
-              <div className="mt-10 w-full max-w-3xl border-t border-brand-ink/10 pt-8">
-                {profile.email ? (
-                  <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
-                    <div className="text-center sm:text-left">
-                      <p className="text-xs font-bold uppercase tracking-[0.15em] text-brand-brown-lt">
-                        Let&apos;s get in touch
-                      </p>
-                      <a
-                        href={`mailto:${profile.email}`}
-                        className="mt-1 inline-flex items-center gap-2 text-sm font-semibold text-brand-ink hover:text-brand-red"
-                      >
-                        {profile.email}
-                      </a>
-                    </div>
-                    <a
-                      href={`mailto:${profile.email}`}
-                      className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-red text-white shadow-lg shadow-brand-red/25 transition hover:bg-brand-red-mid"
-                      aria-label={`Email ${profile.name}`}
-                    >
-                      <Mail size={20} />
-                    </a>
-                  </div>
-                ) : null}
-
-                {profile.socialLinks.length > 0 ? (
-                  <div className={profile.email ? "mt-8" : ""}>
-                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-brand-brown-lt">
-                      Follow me
-                    </p>
-                    <SocialLinksRow links={profile.socialLinks} />
-                  </div>
-                ) : null}
+          {/* Details — left on desktop */}
+          <section className="order-2 lg:order-1 lg:col-span-3">
+            <h2 className="font-display text-xl font-bold text-brand-ink sm:text-2xl">Details</h2>
+            <div className="mt-5 space-y-3">
+              <DetailRow label="Name">{profile.name}</DetailRow>
+              <DetailRow label="Role">{profile.position}</DetailRow>
+              {profile.education ? (
+                <DetailRow label="Education">{profile.education}</DetailRow>
+              ) : null}
+              {profile.email ? (
+                <p className="text-sm leading-relaxed text-brand-brown">
+                  <span className="font-bold text-brand-ink">Email: </span>
+                  <a href={`mailto:${profile.email}`} className="break-all hover:text-brand-red">
+                    {profile.email}
+                  </a>
+                </p>
+              ) : null}
+              <DetailRow label="Location">Sri Lanka</DetailRow>
+            </div>
+            {profile.socialLinks.length > 0 ? (
+              <div className="mt-8 hidden lg:block">
+                <p className="mb-3 text-xs font-bold uppercase tracking-wider text-brand-brown-lt">
+                  Connect
+                </p>
+                <SocialIconRow links={profile.socialLinks} variant="dark" />
               </div>
             ) : null}
+          </section>
 
-            {profile.education ? (
-              <div className="mt-8 flex w-full max-w-3xl items-start justify-center gap-3 rounded-2xl border border-brand-ink/8 bg-brand-cream/60 px-5 py-4 text-left sm:justify-start">
-                <span className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white text-brand-red shadow-sm">
-                  <GraduationCap size={18} />
-                </span>
-                <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.12em] text-brand-brown-lt">
-                    Education
-                  </p>
-                  <p className="mt-1 text-sm font-semibold leading-relaxed text-brand-ink">
-                    {profile.education}
-                  </p>
-                </div>
-              </div>
-            ) : null}
-          </div>
+          {/* About — center on desktop */}
+          <section className="order-3 lg:order-2 lg:col-span-5">
+            <h2 className="font-display text-xl font-bold text-brand-ink sm:text-2xl">About me</h2>
+            <div className="mt-5 space-y-4 text-sm leading-relaxed text-brand-brown sm:text-base">
+              {aboutParagraphs.map((para) => (
+                <p key={para.slice(0, 48)} className="text-justify">
+                  {para}
+                </p>
+              ))}
+              {profile.highlights?.length > 0 ? (
+                <ul className="space-y-2 border-t border-brand-ink/10 pt-4">
+                  {profile.highlights.map((item) => (
+                    <li key={item} className="flex gap-2">
+                      <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-red" />
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+            <a
+              href={contactHref}
+              className="mt-8 inline-flex w-full justify-center rounded-full border-2 border-brand-red bg-white px-8 py-3 text-sm font-bold uppercase tracking-wide text-brand-ink transition hover:bg-brand-red hover:text-white sm:w-auto"
+            >
+              Contact me
+            </a>
+          </section>
         </div>
-      </section>
 
-      <section className="border-t border-brand-ink/8 bg-brand-cream/40 px-5 py-12 lg:px-8 lg:py-16">
-        <div className="mx-auto max-w-3xl text-center">
-          <p className="text-xs font-bold uppercase tracking-[0.15em] text-brand-red">MrVilz</p>
-          <h2 className="mt-2 font-display text-xl font-extrabold text-brand-ink sm:text-2xl">
-            Explore more
-          </h2>
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <footer className="mt-16 border-t border-brand-ink/10 pt-10 text-center">
+          <p className="text-xs font-bold uppercase tracking-[0.15em] text-brand-red">Mr Vilz</p>
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
             <Link
-              to="/gallery"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-ink/10 bg-white px-5 py-3 text-sm font-bold text-brand-ink transition hover:border-brand-red/30 hover:bg-brand-red/5"
+              to="/team-members"
+              className="text-sm font-semibold text-brand-brown-lt hover:text-brand-ink"
             >
-              View gallery <ArrowUpRight size={16} />
+              All team members
             </Link>
-            <Link
-              to="/join"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-ink px-5 py-3 text-sm font-bold text-white transition hover:bg-brand-brown"
-            >
-              Become a member <ArrowUpRight size={16} />
-            </Link>
-            <Link
-              to="/#team"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-brand-ink/10 bg-white px-5 py-3 text-sm font-bold text-brand-ink transition hover:border-brand-ink/20"
-            >
-              Core team <ArrowUpRight size={16} />
+            <span className="text-brand-parchment">·</span>
+            <Link to="/contact" className="text-sm font-semibold text-brand-brown-lt hover:text-brand-ink">
+              Contact Mr Vilz
             </Link>
           </div>
-        </div>
-      </section>
+        </footer>
+      </div>
     </main>
   );
 }
