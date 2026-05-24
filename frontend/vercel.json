@@ -7,6 +7,10 @@
     {
       "source": "/uploads/:path*",
       "destination": "https://mrvilz-official-web.onrender.com/uploads/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ]
 }
