@@ -20,6 +20,7 @@ import {
   AdminInput,
   AdminTextarea,
   AdminButton,
+  AdminAddButton,
   AdminEmpty,
   AdminListCard
 } from "../../components/admin/AdminUi";
@@ -42,9 +43,16 @@ export default function AdminsPage() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ ...EMPTY_FORM, password: "", isActive: true });
+  const [showCreate, setShowCreate] = useState(false);
   const [error, setError] = useState("");
   const [loadError, setLoadError] = useState("");
   const [saving, setSaving] = useState(false);
+
+  function closeCreateForm() {
+    setShowCreate(false);
+    setForm(EMPTY_FORM);
+    setError("");
+  }
 
   function load() {
     loadAdminList(api.get("/admin/users"), (d) => d.admins, setAdmins, setLoadError);
@@ -70,6 +78,7 @@ export default function AdminsPage() {
       }
       await api.post("/admin/users", payload);
       setForm(EMPTY_FORM);
+      setShowCreate(false);
       load();
     } catch (err) {
       setError(err.response?.data?.message || "Could not create admin.");
@@ -136,8 +145,17 @@ export default function AdminsPage() {
 
   return (
     <AdminPageShell
-      description={`${activeCount} active admin${activeCount === 1 ? "" : "s"}. Create new staff accounts and manage existing logins below.`}
+      description={`${activeCount} active admin${activeCount === 1 ? "" : "s"}. Manage staff logins or add a new admin account.`}
       loadError={loadError}
+      action={
+        showCreate ? (
+          <AdminButton variant="secondary" onClick={closeCreateForm}>
+            Cancel
+          </AdminButton>
+        ) : (
+          <AdminAddButton onClick={() => setShowCreate(true)}>Add admin</AdminAddButton>
+        )
+      }
     >
       {error ? (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
@@ -145,6 +163,7 @@ export default function AdminsPage() {
         </p>
       ) : null}
 
+      {showCreate ? (
       <AdminPanel
         title="Create admin"
         description="Add a new staff login with username, password, and contact details."
@@ -213,14 +232,15 @@ export default function AdminsPage() {
             <AdminButton type="submit" loading={saving}>
               Create admin
             </AdminButton>
-            <AdminButton variant="secondary" type="button" onClick={() => setForm(EMPTY_FORM)}>
-              Clear form
+            <AdminButton variant="secondary" type="button" onClick={closeCreateForm}>
+              Cancel
             </AdminButton>
           </div>
         </form>
       </AdminPanel>
+      ) : null}
 
-      <div className="mt-6">
+      <div className={showCreate ? "mt-6" : ""}>
         <AdminPanel
           title="Admin list"
           description="All admin accounts. Edit details or deactivate staff who should no longer log in."
@@ -230,7 +250,7 @@ export default function AdminsPage() {
             <AdminEmpty
               icon={Shield}
               title="No admin accounts yet"
-              description="Use the Create admin section above to add the first staff login."
+              description='Click "Add admin" above to create the first staff login.'
             />
           ) : (
             <div className="space-y-4">
