@@ -104,6 +104,11 @@ async function updateAdmin(req, res, next) {
     }
 
     const callerIsSuper = isSuperAdminRole(req.admin.role);
+    const isSelf = String(req.admin.id) === String(oid);
+
+    if (!callerIsSuper && !isSelf) {
+      return res.status(403).json({ message: "You can only edit your own profile." });
+    }
 
     if (!callerIsSuper && isSuperAdminRole(target.role)) {
       return res.status(403).json({ message: "Only super admins can edit super admin accounts." });
@@ -120,6 +125,16 @@ async function updateAdmin(req, res, next) {
     if (req.body.role !== undefined) {
       if (!callerIsSuper) {
         return res.status(403).json({ message: "Only super admins can change roles." });
+      }
+      if (isSelf && req.body.role !== ROLES.SUPER_ADMIN && isSuperAdminRole(target.role)) {
+        const superCount = await Admin.countDocuments({
+          role: ROLES.SUPER_ADMIN,
+          is_active: 1,
+          _id: { $ne: oid }
+        });
+        if (superCount < 1) {
+          return res.status(400).json({ message: "At least one active super admin is required." });
+        }
       }
       const nextRole = req.body.role;
       if (nextRole !== ROLES.ADMIN && nextRole !== ROLES.SUPER_ADMIN) {
@@ -148,8 +163,12 @@ async function updateAdmin(req, res, next) {
       return res.status(409).json({ message: "Email already in use." });
     }
 
-    const isActive =
+    let isActive =
       req.body.isActive === undefined ? target.is_active : req.body.isActive ? 1 : 0;
+
+    if (!callerIsSuper && isSelf) {
+      isActive = target.is_active;
+    }
 
     if (isActive === 0 && String(req.admin.id) === String(oid)) {
       return res.status(400).json({ message: "You cannot deactivate your own account." });

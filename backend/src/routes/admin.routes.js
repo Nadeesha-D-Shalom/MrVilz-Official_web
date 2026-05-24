@@ -2,7 +2,7 @@ const { Router } = require("express");
 const adminController = require("../controllers/admin.controller");
 const adminUsersController = require("../controllers/adminUsers.controller");
 const careersController = require("../controllers/careers.controller");
-const { authRequired, loadAdminRole } = require("../middleware/auth");
+const { authRequired, loadAdminRole, requireSuperAdmin } = require("../middleware/auth");
 const { upload } = require("../middleware/upload");
 const { galleryUpload } = require("../middleware/uploadGallery");
 const { projectImage, teamImage } = require("../middleware/uploadHashedImage");
@@ -53,9 +53,9 @@ router.post("/gallery", galleryUpload.array("images", 30), adminController.creat
 router.put("/gallery/:id", galleryUpload.single("image"), adminController.updateGalleryItem);
 router.delete("/gallery/:id", adminController.deleteGalleryItem);
 
-router.get("/users", adminUsersController.listAdmins);
-router.post("/users", adminUsersController.createAdmin);
+router.get("/users", requireSuperAdmin, adminUsersController.listAdmins);
+router.post("/users", requireSuperAdmin, adminUsersController.createAdmin);
 router.put("/users/:id", adminUsersController.updateAdmin);
-router.patch("/users/:id/deactivate", adminUsersController.deactivateAdmin);
+router.patch("/users/:id/deactivate", requireSuperAdmin, adminUsersController.deactivateAdmin);
 
 module.exports = router;

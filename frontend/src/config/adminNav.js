@@ -57,9 +57,16 @@ export const ADMIN_NAV_GROUPS = [
     id: "settings",
     label: "Settings",
     collapsible: true,
-    items: [{ to: "/admin/admins", label: "Admin users", icon: Shield, superAdminOnly: true }]
+    items: [
+      { to: "/admin/admins", label: "Manage admins", icon: Shield, superAdminOnly: true },
+      { to: "/admin/profile", label: "My profile", icon: Users, superAdminOnly: false }
+    ]
   }
 ];
+
+export const ADMIN_EXTRA_PAGE_TITLES = {
+  "/admin/profile": "My profile"
+};
 
 export const ADMIN_DASHBOARD_GROUPS = [
   {
@@ -145,8 +152,8 @@ export const ADMIN_DASHBOARD_GROUPS = [
     items: [
       {
         to: "/admin/admins",
-        title: "Admin users",
-        desc: "Add staff logins with contact details",
+        title: "Manage admins",
+        desc: "Create staff logins and view the admin list",
         icon: Shield,
         accent: "bg-slate-800/10 text-slate-800",
         superAdminOnly: true

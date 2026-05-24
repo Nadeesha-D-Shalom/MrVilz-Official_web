@@ -1,4 +1,5 @@
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import api from "../api/client";
 
 const AuthContext = createContext(null);
 
@@ -29,6 +30,20 @@ export function AuthProvider({ children }) {
   const [token, setToken] = useState(readStoredToken);
   const [admin, setAdmin] = useState(readStoredAdmin);
 
+  const persistAdmin = useCallback((nextAdmin) => {
+    if (!nextAdmin) return;
+    localStorage.setItem("mrvilz_admin_user", JSON.stringify(nextAdmin));
+    setAdmin(nextAdmin);
+  }, []);
+
+  const refreshAdmin = useCallback(async () => {
+    const { data } = await api.get("/auth/me");
+    if (data?.admin) {
+      persistAdmin(data.admin);
+    }
+    return data?.admin;
+  }, [persistAdmin]);
+
   const value = useMemo(
     () => ({
       token,
@@ -36,18 +51,19 @@ export function AuthProvider({ children }) {
       isAuthenticated: Boolean(token && admin),
       login: ({ token: nextToken, admin: nextAdmin }) => {
         localStorage.setItem("mrvilz_admin_token", nextToken);
-        localStorage.setItem("mrvilz_admin_user", JSON.stringify(nextAdmin));
+        persistAdmin(nextAdmin);
         setToken(nextToken);
-        setAdmin(nextAdmin);
       },
       logout: () => {
         localStorage.removeItem("mrvilz_admin_token");
         localStorage.removeItem("mrvilz_admin_user");
         setToken(null);
         setAdmin(null);
-      }
+      },
+      updateAdmin: persistAdmin,
+      refreshAdmin
     }),
-    [token, admin]
+    [token, admin, persistAdmin, refreshAdmin]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

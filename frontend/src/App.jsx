@@ -18,6 +18,7 @@ import ApplicationsPage from "./pages/admin/ApplicationsPage";
 import JobApplicationsPage from "./pages/admin/JobApplicationsPage";
 import GalleryAdminPage from "./pages/admin/GalleryAdminPage";
 import AdminsPage from "./pages/admin/AdminsPage";
+import ProfilePage from "./pages/admin/ProfilePage";
 import AdminCareersPage from "./pages/admin/CareersPage";
 
 const CareersPage = lazy(() => import("./pages/public/CareersPage"));
@@ -124,6 +125,7 @@ export default function App() {
             <Route path="job-applications" element={<JobApplicationsPage />} />
             <Route path="gallery" element={<GalleryAdminPage />} />
             <Route path="careers" element={<AdminCareersPage />} />
+            <Route path="profile" element={<ProfilePage />} />
             <Route
               path="admins"
               element={

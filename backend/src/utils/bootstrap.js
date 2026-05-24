@@ -158,6 +158,27 @@ async function migrateTeamLeadership() {
   await TeamMember.updateMany({ slug: { $in: leadershipSlugs } }, { $set: { is_leadership: 1 } });
 }
 
+async function ensureLeadershipTeam() {
+  for (const member of defaultTeam) {
+    await TeamMember.updateOne(
+      { slug: member.slug },
+      {
+        $set: {
+          name: member.name,
+          slug: member.slug,
+          position: member.position,
+          bio: member.bio,
+          image_url: member.image_url,
+          sort_order: member.sort_order,
+          is_leadership: 1,
+          is_active: 1
+        }
+      },
+      { upsert: true }
+    );
+  }
+}
+
 async function bootstrapDatabase() {
   await connectDb();
   await ensureContentDefaults();
@@ -171,6 +192,7 @@ async function bootstrapDatabase() {
   await ensureGallery();
   await syncTeamProfiles();
   await migrateTeamLeadership();
+  await ensureLeadershipTeam();
   console.log("MongoDB bootstrap completed.");
 }
 

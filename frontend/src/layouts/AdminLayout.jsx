@@ -3,10 +3,15 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import AdminSidebar from "../components/admin/AdminSidebar";
+import AdminProfileMenu from "../components/admin/AdminProfileMenu";
 import AdminErrorBoundary from "../components/admin/AdminErrorBoundary";
-import { ADMIN_NAV_GROUPS } from "../config/adminNav";
+import { ADMIN_NAV_GROUPS, ADMIN_EXTRA_PAGE_TITLES } from "../config/adminNav";
 
 function getPageTitle(pathname) {
+  if (ADMIN_EXTRA_PAGE_TITLES[pathname]) {
+    return ADMIN_EXTRA_PAGE_TITLES[pathname];
+  }
+
   for (const group of ADMIN_NAV_GROUPS) {
     for (const item of group.items) {
       if (item.end && (pathname === "/admin" || pathname === "/admin/")) {
@@ -21,9 +26,15 @@ function getPageTitle(pathname) {
 }
 
 export default function AdminLayout() {
-  const { isAuthenticated, logout, admin } = useAuth();
+  const { isAuthenticated, logout, admin, refreshAdmin } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      refreshAdmin().catch(() => {});
+    }
+  }, [isAuthenticated, refreshAdmin]);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -66,11 +77,7 @@ export default function AdminLayout() {
         >
           <X size={20} />
         </button>
-        <AdminSidebar
-          admin={admin}
-          onLogout={logout}
-          onNavigate={() => setMobileOpen(false)}
-        />
+        <AdminSidebar admin={admin} onNavigate={() => setMobileOpen(false)} />
       </aside>
 
       <div className="lg:pl-[260px]">
@@ -84,19 +91,14 @@ export default function AdminLayout() {
             <Menu size={20} />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-brand-red lg:hidden">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-red lg:hidden">
               Mr Vilz Admin
             </p>
             <h1 className="truncate font-display text-xl font-extrabold text-brand-ink sm:text-2xl">
               {pageTitle}
             </h1>
           </div>
-          <div className="hidden items-center gap-2 rounded-full border border-brand-ink/8 bg-brand-cream px-3 py-1.5 sm:flex">
-            <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
-            <span className="max-w-[140px] truncate text-xs font-semibold text-brand-brown">
-              {admin?.username}
-            </span>
-          </div>
+          <AdminProfileMenu admin={admin} onLogout={logout} />
         </header>
 
         <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
