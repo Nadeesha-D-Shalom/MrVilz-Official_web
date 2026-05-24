@@ -2,14 +2,14 @@ const { Router } = require("express");
 const adminController = require("../controllers/admin.controller");
 const adminUsersController = require("../controllers/adminUsers.controller");
 const careersController = require("../controllers/careers.controller");
-const { authRequired } = require("../middleware/auth");
+const { authRequired, loadAdminRole } = require("../middleware/auth");
 const { upload } = require("../middleware/upload");
 const { galleryUpload } = require("../middleware/uploadGallery");
 const { projectImage, teamImage } = require("../middleware/uploadHashedImage");
 
 const router = Router();
 
-router.use(authRequired);
+router.use(authRequired, loadAdminRole);
 
 router.put("/hero", adminController.updateHero);
 router.put("/about", adminController.updateAbout);

@@ -18,15 +18,63 @@ const engage = [
   { to: "/contact", label: "Contact" }
 ];
 
+function FooterNavLink({ to, children, hash = false }) {
+  if (hash) {
+    return (
+      <a href={to} className="footer-nav-link">
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <ScrollLink to={to} className="footer-nav-link">
+      {children}
+    </ScrollLink>
+  );
+}
+
+function FooterNavList({ items }) {
+  return (
+    <ul className="mt-4 space-y-3">
+      {items.map((l) => (
+        <li key={l.to}>
+          <FooterNavLink to={l.to} hash={l.to.includes("#")}>
+            {l.label}
+          </FooterNavLink>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export default function Footer({ socialLinks = [] }) {
   return (
     <footer className="relative mt-16 overflow-hidden bg-brand-ink text-white sm:mt-24">
+      <div
+        className="footer-dot-bg pointer-events-none absolute inset-0 opacity-60"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -right-16 top-24 h-48 w-48 rounded-full bg-brand-red/10 blur-3xl"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute -left-12 bottom-32 h-40 w-40 rounded-full bg-white/5 blur-2xl"
+        aria-hidden
+      />
+
       <div className="relative border-b border-white/10">
         <div className="absolute inset-0 bg-gradient-to-r from-white/5 via-transparent to-white/5" />
         <div className="relative mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 py-12 sm:py-14 md:flex-row md:items-center lg:px-8">
           <div className="max-w-xl">
             <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-brand-red-light">
-              <Sparkles size={14} /> Make an impact
+              <span className="flex gap-1" aria-hidden>
+                <span className="h-1 w-1 rounded-full bg-brand-red-light" />
+                <span className="h-1 w-1 rounded-full bg-white/35" />
+                <span className="h-1 w-1 rounded-full bg-white/20" />
+              </span>
+              Make an impact
             </p>
             <h2 className="mt-3 font-display text-2xl font-extrabold sm:text-3xl md:text-4xl">
               Ready to protect Sri Lanka together?
@@ -49,7 +97,7 @@ export default function Footer({ socialLinks = [] }) {
         </div>
       </div>
 
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:gap-12 sm:py-16 lg:grid-cols-12 lg:gap-8 lg:px-8">
+      <div className="relative mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:gap-12 sm:py-16 lg:grid-cols-12 lg:gap-8 lg:px-8">
         <div className="lg:col-span-4">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             <div className="shrink-0 overflow-hidden rounded-2xl sm:rounded-[1.25rem]">
@@ -72,39 +120,17 @@ export default function Footer({ socialLinks = [] }) {
         </div>
 
         <div className="sm:col-span-1 lg:col-span-2">
-          <p className="text-xs font-bold uppercase tracking-widest text-white/40">Explore</p>
-          <ul className="mt-4 space-y-2.5">
-            {explore.map((l) => (
-              <li key={l.to}>
-                {l.to.includes("#") ? (
-                  <a href={l.to} className="text-sm text-white/75 transition hover:text-white">
-                    {l.label}
-                  </a>
-                ) : (
-                  <ScrollLink to={l.to} className="text-sm text-white/75 transition hover:text-white">
-                    {l.label}
-                  </ScrollLink>
-                )}
-              </li>
-            ))}
-          </ul>
+          <p className="footer-section-label">Explore</p>
+          <FooterNavList items={explore} />
         </div>
 
         <div className="sm:col-span-1 lg:col-span-2">
-          <p className="text-xs font-bold uppercase tracking-widest text-white/40">Engage</p>
-          <ul className="mt-4 space-y-2.5">
-            {engage.map((l) => (
-              <li key={l.to}>
-                <ScrollLink to={l.to} className="text-sm text-white/75 transition hover:text-white">
-                  {l.label}
-                </ScrollLink>
-              </li>
-            ))}
-          </ul>
+          <p className="footer-section-label">Engage</p>
+          <FooterNavList items={engage} />
         </div>
 
         <div className="lg:col-span-4">
-          <p className="text-xs font-bold uppercase tracking-widest text-white/40">Connect</p>
+          <p className="footer-section-label">Connect</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {socialLinks.map((link) => (
               <a
@@ -120,7 +146,7 @@ export default function Footer({ socialLinks = [] }) {
           </div>
           <ScrollLink
             to="/contact"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-brand-red-light hover:text-white"
+            className="footer-nav-link mt-6 inline-flex items-center gap-2 font-semibold text-brand-red-light hover:text-white"
           >
             <Mail size={16} /> Send a message
           </ScrollLink>
@@ -131,7 +157,7 @@ export default function Footer({ socialLinks = [] }) {
             </p>
             <p className="mt-2 text-xs leading-relaxed text-white/55">
               Structured for environment, entertainment & creative discovery — see{" "}
-              <ScrollLink to="/discover" className="font-semibold text-white underline">
+              <ScrollLink to="/discover" className="footer-nav-link font-semibold text-white">
                 /discover
               </ScrollLink>
             </p>
@@ -139,17 +165,20 @@ export default function Footer({ socialLinks = [] }) {
         </div>
       </div>
 
-      <div className="border-t border-white/10">
+      <div className="relative border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-5 py-6 text-xs text-white/40 md:flex-row md:items-center md:justify-between lg:px-8">
-          <p>© {new Date().getFullYear()} Mr Vilz. All rights reserved.</p>
-          <div className="flex flex-wrap gap-4">
-            <ScrollLink to="/discover" className="hover:text-white/70">
+          <p className="flex items-center gap-2">
+            <span className="hidden h-1 w-1 rounded-full bg-white/30 sm:inline" aria-hidden />
+            © {new Date().getFullYear()} Mr Vilz. All rights reserved.
+          </p>
+          <div className="flex flex-wrap gap-5">
+            <ScrollLink to="/discover" className="footer-nav-link">
               Entity profile
             </ScrollLink>
-            <a href="/llms.txt" className="hover:text-white/70">
+            <a href="/llms.txt" className="footer-nav-link">
               llms.txt
             </a>
-            <ScrollLink to="/admin/login" className="hover:text-white/70">
+            <ScrollLink to="/admin/login" className="footer-nav-link">
               Admin
             </ScrollLink>
           </div>

@@ -1,21 +1,18 @@
 const bcrypt = require("bcrypt");
 const { Admin } = require("../models");
 const { isValidId, toObjectId } = require("../utils/mongoId");
+const { toAdminDto } = require("../utils/adminDto");
+const { ROLES, isSuperAdminRole } = require("../utils/adminRoles");
 
-function toAdminDto(doc) {
-  if (!doc) return null;
-  const row = doc.toObject ? doc.toObject() : doc;
-  return {
-    id: String(row._id),
-    username: row.username,
-    name: row.display_name,
-    email: row.email,
-    phone: row.phone,
-    address: row.address,
-    isActive: row.is_active === undefined ? true : Boolean(row.is_active),
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
-  };
+function resolveRoleForCreate(body, callerRole) {
+  const requested = body.role;
+  if (requested === ROLES.SUPER_ADMIN) {
+    if (!isSuperAdminRole(callerRole)) {
+      return { error: "Only super admins can create super admin accounts." };
+    }
+    return { role: ROLES.SUPER_ADMIN };
+  }
+  return { role: ROLES.ADMIN };
 }
 
 function validateAdminPayload(body, { requirePassword }) {
@@ -61,6 +58,11 @@ async function createAdmin(req, res, next) {
       return res.status(400).json({ message: errors.join(" ") });
     }
 
+    const roleResult = resolveRoleForCreate(req.body, req.admin.role);
+    if (roleResult.error) {
+      return res.status(403).json({ message: roleResult.error });
+    }
+
     const existingUser = await Admin.findOne({ username });
     if (existingUser) {
       return res.status(409).json({ message: "Username already exists." });
@@ -79,6 +81,7 @@ async function createAdmin(req, res, next) {
       email,
       phone,
       address,
+      role: roleResult.role,
       is_active: 1
     });
 
@@ -100,12 +103,39 @@ async function updateAdmin(req, res, next) {
       return res.status(404).json({ message: "Admin not found." });
     }
 
+    const callerIsSuper = isSuperAdminRole(req.admin.role);
+
+    if (!callerIsSuper && isSuperAdminRole(target.role)) {
+      return res.status(403).json({ message: "Only super admins can edit super admin accounts." });
+    }
+
     const { errors, name, username, email, phone, address, password } = validateAdminPayload(
       req.body,
       { requirePassword: false }
     );
     if (errors.length) {
       return res.status(400).json({ message: errors.join(" ") });
+    }
+
+    if (req.body.role !== undefined) {
+      if (!callerIsSuper) {
+        return res.status(403).json({ message: "Only super admins can change roles." });
+      }
+      const nextRole = req.body.role;
+      if (nextRole !== ROLES.ADMIN && nextRole !== ROLES.SUPER_ADMIN) {
+        return res.status(400).json({ message: "Invalid role." });
+      }
+      if (nextRole === ROLES.ADMIN && isSuperAdminRole(target.role)) {
+        const superCount = await Admin.countDocuments({
+          role: ROLES.SUPER_ADMIN,
+          is_active: 1,
+          _id: { $ne: oid }
+        });
+        if (superCount < 1) {
+          return res.status(400).json({ message: "At least one active super admin is required." });
+        }
+      }
+      target.role = nextRole;
     }
 
     const usernameTaken = await Admin.findOne({ username, _id: { $ne: oid } });
@@ -129,6 +159,16 @@ async function updateAdmin(req, res, next) {
       const activeCount = await Admin.countDocuments({ is_active: 1, _id: { $ne: oid } });
       if (activeCount < 1) {
         return res.status(400).json({ message: "At least one active admin is required." });
+      }
+      if (isSuperAdminRole(target.role)) {
+        const superCount = await Admin.countDocuments({
+          role: ROLES.SUPER_ADMIN,
+          is_active: 1,
+          _id: { $ne: oid }
+        });
+        if (superCount < 1) {
+          return res.status(400).json({ message: "At least one active super admin is required." });
+        }
       }
     }
 
@@ -166,9 +206,24 @@ async function deactivateAdmin(req, res, next) {
       return res.status(404).json({ message: "Admin not found." });
     }
 
+    if (!isSuperAdminRole(req.admin.role) && isSuperAdminRole(target.role)) {
+      return res.status(403).json({ message: "Only super admins can deactivate super admin accounts." });
+    }
+
     const activeCount = await Admin.countDocuments({ is_active: 1, _id: { $ne: oid } });
     if (activeCount < 1) {
       return res.status(400).json({ message: "At least one active admin is required." });
+    }
+
+    if (isSuperAdminRole(target.role)) {
+      const superCount = await Admin.countDocuments({
+        role: ROLES.SUPER_ADMIN,
+        is_active: 1,
+        _id: { $ne: oid }
+      });
+      if (superCount < 1) {
+        return res.status(400).json({ message: "At least one active super admin is required." });
+      }
     }
 
     target.is_active = 0;

@@ -7,6 +7,7 @@ import PublicLayout from "./layouts/PublicLayout";
 import HomePage from "./pages/public/HomePage";
 import LoginPage from "./pages/admin/LoginPage";
 import AdminLayout from "./layouts/AdminLayout";
+import SuperAdminRoute from "./components/admin/SuperAdminRoute";
 import DashboardPage from "./pages/admin/DashboardPage";
 import StatsPage from "./pages/admin/StatsPage";
 import SocialPage from "./pages/admin/SocialPage";
@@ -123,7 +124,14 @@ export default function App() {
             <Route path="job-applications" element={<JobApplicationsPage />} />
             <Route path="gallery" element={<GalleryAdminPage />} />
             <Route path="careers" element={<AdminCareersPage />} />
-            <Route path="admins" element={<AdminsPage />} />
+            <Route
+              path="admins"
+              element={
+                <SuperAdminRoute>
+                  <AdminsPage />
+                </SuperAdminRoute>
+              }
+            />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

@@ -1,17 +1,26 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight, LayoutDashboard } from "lucide-react";
 import { ADMIN_DASHBOARD_GROUPS } from "../../config/adminNav";
+import { useAuth } from "../../context/AuthContext";
+import { isSuperAdmin } from "../../utils/adminRole";
 
 export default function DashboardPage() {
+  const { admin } = useAuth();
+  const allowSuperOnly = isSuperAdmin(admin);
+  const dashboardGroups = ADMIN_DASHBOARD_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.superAdminOnly || allowSuperOnly)
+  })).filter((group) => group.items.length > 0);
+
   return (
     <div className="mx-auto max-w-6xl">
       <div className="overflow-hidden rounded-2xl border border-brand-ink/8 bg-white shadow-sm lg:rounded-3xl">
-        <div className="border-b border-brand-ink/6 bg-brand-ink px-6 py-5 sm:px-8">
-          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-red">
-            <LayoutDashboard size={14} />
+        <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5 sm:px-8">
+          <p className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-brand-red">
+            <LayoutDashboard size={12} />
             Overview
           </p>
-          <h2 className="mt-2 font-display text-2xl font-extrabold text-white sm:text-3xl">
+          <h2 className="mt-2 font-display text-2xl font-extrabold text-brand-ink sm:text-3xl">
             Welcome back
           </h2>
         </div>
@@ -33,9 +42,9 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-8 space-y-10">
-        {ADMIN_DASHBOARD_GROUPS.map((group) => (
+        {dashboardGroups.map((group) => (
           <section key={group.label}>
-            <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.15em] text-brand-brown-lt">
+            <h3 className="mb-3 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">
               {group.label}
             </h3>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -57,10 +66,10 @@ export default function DashboardPage() {
                         <ArrowUpRight size={18} />
                       </span>
                     </div>
-                    <h4 className="mt-4 font-display text-lg font-bold text-brand-ink">
+                    <h4 className="mt-4 font-display text-xl font-bold text-brand-ink">
                       {card.title}
                     </h4>
-                    <p className="mt-1.5 flex-1 text-sm leading-relaxed text-slate-500">
+                    <p className="mt-1.5 flex-1 text-xs leading-relaxed text-slate-500 sm:text-sm">
                       {card.desc}
                     </p>
                     <span className="mt-4 text-xs font-bold text-brand-red opacity-0 transition group-hover:opacity-100">

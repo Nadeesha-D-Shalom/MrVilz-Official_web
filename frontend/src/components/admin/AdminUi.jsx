@@ -17,7 +17,7 @@ export function AdminPageShell({ description, children, action, loadError }) {
       {(description || action) && (
         <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           {description ? (
-            <p className="max-w-2xl text-sm leading-relaxed text-slate-600 sm:text-base">
+            <p className="max-w-2xl text-xs leading-relaxed text-slate-500 sm:text-sm">
               {description}
             </p>
           ) : (
@@ -43,9 +43,9 @@ export function AdminPanel({ title, description, children, footer, icon: Icon })
               </span>
             ) : null}
             <div>
-              {title ? <h2 className="font-display text-lg font-bold text-brand-ink">{title}</h2> : null}
+              {title ? <h2 className="font-display text-xl font-bold text-brand-ink">{title}</h2> : null}
               {description ? (
-                <p className="mt-0.5 text-sm text-slate-500">{description}</p>
+                <p className="mt-0.5 text-xs text-slate-500">{description}</p>
               ) : null}
             </div>
           </div>

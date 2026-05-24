@@ -16,7 +16,8 @@ const navItems = [
 ];
 
 function NavItem({ item, active, pillClass, activePill }) {
-  const visibility = item.hideOnMobile ? "hidden sm:inline-flex" : "";
+  // max-sm:hidden — Discover stays on tablet/desktop; pillClass inline-flex was overriding hidden
+  const visibility = item.hideOnMobile ? "max-sm:hidden" : "";
   const className = `${pillClass} ${visibility} ${active ? activePill : ""}`;
   const aria = active ? { "aria-current": "page" } : {};
 

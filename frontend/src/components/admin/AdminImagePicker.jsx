@@ -84,7 +84,15 @@ export function buildTeamFormData(member, imageFile) {
   const fd = new FormData();
   fd.append("name", member.name || "");
   fd.append("position", member.position || "");
+  const short =
+    member.shortDescription ?? member.short_description ?? member.bio ?? "";
+  fd.append("shortDescription", short);
   if (member.bio !== undefined) fd.append("bio", member.bio || "");
+  if (member.isLeadership !== undefined) {
+    fd.append("isLeadership", member.isLeadership ? "true" : "false");
+  } else if (member.is_leadership !== undefined) {
+    fd.append("isLeadership", member.is_leadership === 1 ? "true" : "false");
+  }
   if (imageFile) fd.append("image", imageFile);
   return fd;
 }

@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { Admin } = require("../models");
 const env = require("../config/env");
+const { toAdminDto } = require("../utils/adminDto");
 
 async function login(req, res, next) {
   try {
@@ -29,23 +30,23 @@ async function login(req, res, next) {
 
     return res.json({
       token,
-      admin: {
-        id,
-        username: admin.username,
-        displayName: admin.display_name,
-        name: admin.display_name,
-        email: admin.email,
-        phone: admin.phone,
-        address: admin.address
-      }
+      admin: toAdminDto(admin)
     });
   } catch (error) {
     return next(error);
   }
 }
 
-async function me(req, res) {
-  return res.json({ admin: req.admin });
+async function me(req, res, next) {
+  try {
+    const doc = await Admin.findById(req.admin.id).lean();
+    if (!doc || doc.is_active === 0) {
+      return res.status(401).json({ message: "Account inactive or not found." });
+    }
+    return res.json({ admin: toAdminDto(doc) });
+  } catch (error) {
+    return next(error);
+  }
 }
 
 module.exports = { login, me };

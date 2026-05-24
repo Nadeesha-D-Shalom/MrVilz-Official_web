@@ -54,14 +54,14 @@ export default function AdminLayout() {
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[min(100%,288px)] shadow-2xl transition-transform duration-300 ease-out lg:z-30 lg:w-[260px] lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-[min(100%,288px)] border-r border-slate-200/90 bg-white shadow-xl transition-transform duration-300 ease-out lg:z-30 lg:w-[260px] lg:translate-x-0 lg:shadow-none ${
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         <button
           type="button"
           aria-label="Close menu"
-          className="absolute right-3 top-4 z-10 rounded-lg p-2 text-white/70 hover:bg-white/10 lg:hidden"
+          className="absolute right-3 top-4 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
           onClick={() => setMobileOpen(false)}
         >
           <X size={20} />
@@ -84,10 +84,10 @@ export default function AdminLayout() {
             <Menu size={20} />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-red lg:hidden">
+            <p className="text-[9px] font-bold uppercase tracking-[0.14em] text-brand-red lg:hidden">
               Mr Vilz Admin
             </p>
-            <h1 className="truncate font-display text-lg font-bold text-brand-ink sm:text-xl">
+            <h1 className="truncate font-display text-xl font-extrabold text-brand-ink sm:text-2xl">
               {pageTitle}
             </h1>
           </div>

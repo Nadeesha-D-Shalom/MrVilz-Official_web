@@ -1,5 +1,6 @@
 const bcrypt = require("bcrypt");
 const env = require("../config/env");
+const { ROLES } = require("./adminRoles");
 const { connectDb } = require("../config/db");
 const { upsertContent } = require("./content");
 const { slugify } = require("./slugify");
@@ -33,8 +34,21 @@ async function ensureAdmin() {
     username: env.admin.username,
     password_hash: passwordHash,
     display_name: "Site Admin",
+    role: ROLES.SUPER_ADMIN,
     is_active: 1
   });
+}
+
+async function migrateAdminRoles() {
+  await Admin.updateMany(
+    { $or: [{ role: { $exists: false } }, { role: null }, { role: "" }] },
+    { $set: { role: ROLES.ADMIN } }
+  );
+  await Admin.updateOne(
+    { username: env.admin.username },
+    { $set: { role: ROLES.SUPER_ADMIN } }
+  );
+  await Admin.updateOne({ username: "nadeesha24" }, { $set: { role: ROLES.SUPER_ADMIN } });
 }
 
 async function ensureStats() {
@@ -121,7 +135,8 @@ async function syncTeamProfiles() {
           name: profile.name,
           position: profile.position,
           bio: profile.bio,
-          slug: profile.slug
+          slug: profile.slug,
+          is_leadership: 1
         }
       }
     );
@@ -138,10 +153,16 @@ async function syncTeamProfiles() {
   }
 }
 
+async function migrateTeamLeadership() {
+  const leadershipSlugs = ["nadeesha", "chamidu", "pabodha", "nethmina"];
+  await TeamMember.updateMany({ slug: { $in: leadershipSlugs } }, { $set: { is_leadership: 1 } });
+}
+
 async function bootstrapDatabase() {
   await connectDb();
   await ensureContentDefaults();
   await ensureAdmin();
+  await migrateAdminRoles();
   await ensureStats();
   await ensureSocialLinks();
   await ensureTeam();
@@ -149,6 +170,7 @@ async function bootstrapDatabase() {
   await ensureCareerPosts();
   await ensureGallery();
   await syncTeamProfiles();
+  await migrateTeamLeadership();
   console.log("MongoDB bootstrap completed.");
 }
 

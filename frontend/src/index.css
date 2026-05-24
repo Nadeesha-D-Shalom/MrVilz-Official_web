@@ -96,6 +96,48 @@
     box-shadow: 0 12px 32px rgba(26, 16, 8, 0.1);
   }
 
+  .team-card-name {
+    @apply truncate whitespace-nowrap text-xs font-bold leading-tight sm:text-sm lg:text-base;
+  }
+
+  .team-card-role {
+    @apply truncate whitespace-nowrap text-[10px] font-semibold leading-snug text-white/90 sm:text-xs lg:text-sm;
+  }
+
+  .footer-dot-bg {
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+    background-size: 18px 18px;
+  }
+
+  .footer-nav-link {
+    @apply relative inline-block text-sm text-white/75 transition-colors duration-200 hover:text-white;
+  }
+
+  .footer-nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px;
+    width: 0;
+    height: 1px;
+    background-color: currentColor;
+    transition: width 0.25s ease;
+  }
+
+  .footer-nav-link:hover::after {
+    width: 100%;
+  }
+
+  .footer-section-label {
+    @apply flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-white/40;
+  }
+
+  .footer-section-label::before {
+    content: "";
+    @apply h-1 w-1 shrink-0 rounded-full bg-brand-red-light;
+    box-shadow: 6px 0 0 rgba(255, 255, 255, 0.25), 12px 0 0 rgba(255, 255, 255, 0.12);
+  }
+
   .team-card-bio {
     display: -webkit-box;
     -webkit-line-clamp: 3;

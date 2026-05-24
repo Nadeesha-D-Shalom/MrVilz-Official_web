@@ -11,6 +11,7 @@ import {
 import api from "../../api/client";
 import { loadAdminList } from "../../utils/adminDataLoad";
 import { useAuth } from "../../context/AuthContext";
+import { isSuperAdmin, ROLE_LABELS } from "../../utils/adminRole";
 import {
   AdminPageShell,
   AdminPanel,
@@ -30,11 +31,13 @@ const EMPTY_FORM = {
   address: "",
   email: "",
   username: "",
-  password: ""
+  password: "",
+  role: "admin"
 };
 
 export default function AdminsPage() {
   const { admin: currentAdmin } = useAuth();
+  const canManageRoles = isSuperAdmin(currentAdmin);
   const [admins, setAdmins] = useState([]);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -62,7 +65,11 @@ export default function AdminsPage() {
     setSaving(true);
     setError("");
     try {
-      await api.post("/admin/users", form);
+      const payload = { ...form };
+      if (!canManageRoles) {
+        delete payload.role;
+      }
+      await api.post("/admin/users", payload);
       setForm(EMPTY_FORM);
       setShowAdd(false);
       load();
@@ -82,7 +89,8 @@ export default function AdminsPage() {
       email: admin.email || "",
       username: admin.username || "",
       password: "",
-      isActive: admin.isActive
+      isActive: admin.isActive,
+      role: admin.role || "admin"
     });
     setError("");
   }
@@ -102,6 +110,9 @@ export default function AdminsPage() {
       };
       if (editForm.password.trim()) {
         payload.password = editForm.password;
+      }
+      if (canManageRoles) {
+        payload.role = editForm.role;
       }
       await api.put(`/admin/users/${editingId}`, payload);
       setEditingId(null);
@@ -192,6 +203,18 @@ export default function AdminsPage() {
                 onChange={(e) => updateForm(setForm, "password", e.target.value)}
               />
             </AdminField>
+            {canManageRoles ? (
+              <AdminField label="Role" required className="sm:col-span-2">
+                <select
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-800"
+                  value={form.role}
+                  onChange={(e) => updateForm(setForm, "role", e.target.value)}
+                >
+                  <option value="admin">Admin</option>
+                  <option value="super_admin">Super admin</option>
+                </select>
+              </AdminField>
+            ) : null}
             <div className="flex flex-wrap gap-2 sm:col-span-2">
               <AdminButton type="submit" loading={saving}>
                 Create admin
@@ -266,6 +289,18 @@ export default function AdminsPage() {
                           onChange={(e) => updateForm(setEditForm, "password", e.target.value)}
                         />
                       </AdminField>
+                      {canManageRoles ? (
+                        <AdminField label="Role" className="sm:col-span-2">
+                          <select
+                            className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm font-semibold text-slate-800"
+                            value={editForm.role}
+                            onChange={(e) => updateForm(setEditForm, "role", e.target.value)}
+                          >
+                            <option value="admin">Admin</option>
+                            <option value="super_admin">Super admin</option>
+                          </select>
+                        </AdminField>
+                      ) : null}
                       {!isSelf ? (
                         <label className="flex items-center gap-2 sm:col-span-2">
                           <input
@@ -306,6 +341,15 @@ export default function AdminsPage() {
                                 You
                               </span>
                             ) : null}
+                            <span
+                              className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
+                                admin.role === "super_admin"
+                                  ? "bg-violet-100 text-violet-800"
+                                  : "bg-sky-100 text-sky-800"
+                              }`}
+                            >
+                              {ROLE_LABELS[admin.role] || "Admin"}
+                            </span>
                             <span
                               className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${
                                 admin.isActive

@@ -18,7 +18,7 @@ const {
 
 async function getSiteData(_req, res, next) {
   try {
-    const [hero, about, stats, socialLinks, team, projects] = await Promise.all([
+    const [hero, about, stats, socialLinks, teamRows, projects] = await Promise.all([
       getContentByKey("hero"),
       getContentByKey("about"),
       SiteStat.find({ is_active: 1 }).sort({ sort_order: 1 }).lean(),
@@ -26,6 +26,17 @@ async function getSiteData(_req, res, next) {
       TeamMember.find({ is_active: 1 }).sort({ sort_order: 1 }).lean(),
       Project.find({ is_active: 1 }).sort({ sort_order: 1 }).lean()
     ]);
+
+    const leadership = [];
+    const teamMembers = [];
+    for (const row of teamRows) {
+      const item = teamPublic(row);
+      if (row.is_leadership === 1) {
+        leadership.push(item);
+      } else {
+        teamMembers.push(item);
+      }
+    }
 
     return res.json({
       hero,
@@ -38,7 +49,8 @@ async function getSiteData(_req, res, next) {
         url: l.url,
         icon: l.icon
       })),
-      team: team.map(teamPublic),
+      team: leadership,
+      teamMembers,
       projects: projects.map(projectPublic)
     });
   } catch (error) {

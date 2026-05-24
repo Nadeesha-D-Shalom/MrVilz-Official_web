@@ -43,10 +43,11 @@ const defaultTeam = [
   {
     name: "Nadeesha D Shalom",
     slug: "nadeesha",
-    position: "Founder, Presenter & Full-Stack Developer",
+    position: "Founder & Presenter",
     bio: "Software Engineering undergraduate and Founder of MrVilz — building digital solutions, cinematic travel content, and nature storytelling through modern technology.",
     image_url: "/images/nadeesha1.JPG",
-    sort_order: 1
+    sort_order: 1,
+    is_leadership: 1
   },
   {
     name: "Chamidu",
@@ -54,7 +55,8 @@ const defaultTeam = [
     position: "Co-Founder & Head of Media Production",
     bio: "Videography and photography for MrVilz — field shoots, campaigns, and visual storytelling.",
     image_url: "/images/chamidu.jpeg",
-    sort_order: 2
+    sort_order: 2,
+    is_leadership: 1
   },
   {
     name: "Pabodha Nuwangi",
@@ -62,7 +64,8 @@ const defaultTeam = [
     position: "Creative Producer & Brand Partnerships",
     bio: "Creative media, content creation, and brand partnerships — passionate about environmental awareness and community projects.",
     image_url: "/images/paboda.jpeg",
-    sort_order: 3
+    sort_order: 3,
+    is_leadership: 1
   },
   {
     name: "Nethmina",
@@ -70,7 +73,8 @@ const defaultTeam = [
     position: "Co-Host & Head of Creative Director",
     bio: "Shapes creative direction and co-hosts MrVilz content with a focus on bold visual storytelling and audience engagement.",
     image_url: "/images/nethmina.JPG",
-    sort_order: 4
+    sort_order: 4,
+    is_leadership: 1
   }
 ];
 

@@ -142,13 +142,22 @@ async function listTeam(_req, res, next) {
   }
 }
 
+function parseLeadershipFlag(body) {
+  const raw = body.isLeadership ?? body.is_leadership;
+  if (raw === true || raw === "true" || raw === 1 || raw === "1") return 1;
+  return 0;
+}
+
 async function createTeamMember(req, res, next) {
   try {
     const name = (req.body.name || "").trim();
     const position = (req.body.position || "").trim();
     const bio = req.body.bio || null;
+    const shortDescription =
+      (req.body.shortDescription || req.body.short_description || "").trim() || null;
     const sortOrder = Number(req.body.sortOrder) || 0;
     const slug = (req.body.slug || slugify(name)).trim() || slugify(name);
+    const isLeadership = parseLeadershipFlag(req.body);
     let imageUrl = null;
     if (req.file) {
       imageUrl = teamImage.publicUrlForStoredFile(req.file.filename);
@@ -158,9 +167,11 @@ async function createTeamMember(req, res, next) {
       name,
       slug,
       position,
-      bio: bio || null,
+      bio: bio || shortDescription || null,
+      short_description: shortDescription,
       image_url: imageUrl,
-      sort_order: sortOrder
+      sort_order: sortOrder,
+      is_leadership: isLeadership
     });
 
     return res.status(201).json({ member: withId(member.toObject()) });
@@ -182,6 +193,14 @@ async function updateTeamMember(req, res, next) {
     if (req.body.name !== undefined) existing.name = String(req.body.name).trim();
     if (req.body.position !== undefined) existing.position = String(req.body.position).trim();
     if (req.body.bio !== undefined) existing.bio = req.body.bio;
+    if (req.body.shortDescription !== undefined || req.body.short_description !== undefined) {
+      const short =
+        (req.body.shortDescription || req.body.short_description || "").trim() || null;
+      existing.short_description = short;
+    }
+    if (req.body.isLeadership !== undefined || req.body.is_leadership !== undefined) {
+      existing.is_leadership = parseLeadershipFlag(req.body);
+    }
     if (req.body.sortOrder !== undefined && req.body.sortOrder !== "") {
       existing.sort_order = Number(req.body.sortOrder);
     }

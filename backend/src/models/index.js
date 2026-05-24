@@ -54,8 +54,10 @@ const TeamMember = mongoose.model(
       slug: { type: String, unique: true, sparse: true },
       position: String,
       bio: String,
+      short_description: String,
       image_url: String,
       sort_order: { type: Number, default: 0 },
+      is_leadership: { type: Number, default: 0 },
       is_active: { type: Number, default: 1 }
     },
     { timestamps: ts }
@@ -180,6 +182,7 @@ const Admin = mongoose.model(
       email: String,
       phone: String,
       address: String,
+      role: { type: String, enum: ["admin", "super_admin"], default: "admin" },
       is_active: { type: Number, default: 1 }
     },
     { timestamps: ts }

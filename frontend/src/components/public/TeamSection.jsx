@@ -4,9 +4,12 @@ import { ArrowUpRight, Users } from "lucide-react";
 import useReveal from "../../hooks/useReveal";
 import SectionHeader from "../ui/SectionHeader";
 import LazyImage from "../ui/LazyImage";
-import { teamProfilePath } from "../../utils/team";
+import { teamCardDisplayName, teamCardDisplayPosition, teamProfilePath } from "../../utils/team";
 
 function TeamCard({ member }) {
+  const displayName = teamCardDisplayName(member);
+  const displayRole = teamCardDisplayPosition(member);
+
   return (
     <Link
       to={teamProfilePath(member)}
@@ -19,10 +22,12 @@ function TeamCard({ member }) {
         aspectClass="aspect-[3/4] w-full"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-brand-ink via-brand-ink/50 to-transparent" />
-      <div className="absolute inset-x-0 bottom-0 p-4 text-white sm:p-5">
-        <h3 className="font-display text-lg font-bold leading-tight sm:text-xl">{member.name}</h3>
-        <p className="mt-1 text-xs font-semibold leading-snug text-white/90 sm:text-sm">
-          {member.position}
+      <div className="absolute inset-x-0 bottom-0 p-3 text-white sm:p-4 lg:p-5">
+        <h3 className="team-card-name font-display" title={member.name}>
+          {displayName}
+        </h3>
+        <p className="team-card-role mt-1" title={displayRole}>
+          {displayRole}
         </p>
         <span className="mt-3 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-brand-red-light opacity-0 transition group-hover:opacity-100">
           View profile <ArrowUpRight size={13} />
@@ -34,7 +39,7 @@ function TeamCard({ member }) {
 
 export default function TeamSection({ team = [] }) {
   const { ref, className } = useReveal();
-  const coreTeam = team.slice(0, 4);
+  const coreTeam = team.filter((m) => m.isLeadership !== false);
 
   return (
     <section id="team" className="section-pad content-auto scroll-mt-28 border-t border-brand-ink/5 bg-white">

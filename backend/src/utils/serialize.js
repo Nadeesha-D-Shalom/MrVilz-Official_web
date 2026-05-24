@@ -64,7 +64,9 @@ function teamPublic(doc) {
     slug: o.slug,
     position: o.position,
     bio: o.bio,
-    imageUrl: o.image_url
+    shortDescription: o.short_description || null,
+    imageUrl: o.image_url,
+    isLeadership: o.is_leadership === 1
   };
 }
 

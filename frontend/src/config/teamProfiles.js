@@ -25,6 +25,7 @@ import {
 export const TEAM_PROFILES = {
   nadeesha: {
     greetingName: "Nadeesha",
+    cardPosition: "Founder & Presenter",
     profilePosition: "Founder, Presenter & Full-Stack Developer · AI Engineer",
     summary:
       "Founder of MrVilz and Software Engineering undergraduate — passionate about full-stack development, creative media, travel, and nature storytelling.",

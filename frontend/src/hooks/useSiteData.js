@@ -16,6 +16,7 @@ const defaultData = {
   stats: [],
   socialLinks: [],
   team: [],
+  teamMembers: [],
   projects: []
 };
 

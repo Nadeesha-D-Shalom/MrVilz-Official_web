@@ -57,7 +57,7 @@ export const ADMIN_NAV_GROUPS = [
     id: "settings",
     label: "Settings",
     collapsible: true,
-    items: [{ to: "/admin/admins", label: "Admin users", icon: Shield }]
+    items: [{ to: "/admin/admins", label: "Admin users", icon: Shield, superAdminOnly: true }]
   }
 ];
 
@@ -148,7 +148,8 @@ export const ADMIN_DASHBOARD_GROUPS = [
         title: "Admin users",
         desc: "Add staff logins with contact details",
         icon: Shield,
-        accent: "bg-slate-800/10 text-slate-800"
+        accent: "bg-slate-800/10 text-slate-800",
+        superAdminOnly: true
       }
     ]
   }
