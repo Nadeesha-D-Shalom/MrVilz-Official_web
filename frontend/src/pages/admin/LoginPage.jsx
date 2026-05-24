@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Leaf, Lock, Sparkles } from "lucide-react";
 import { adminLogin } from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
 import Logo from "../../components/public/Logo";
+import { PublicPasswordInput } from "../../components/admin/PasswordInput";
 
 export default function LoginPage() {
   const { isAuthenticated, login } = useAuth();
@@ -57,27 +58,29 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen bg-brand-cream">
-      {/* Left — compact white brand */}
-      <aside className="relative hidden w-full max-w-sm flex-col justify-between border-r border-brand-ink/8 bg-white px-8 py-8 lg:flex xl:max-w-md">
+    <div className="flex min-h-screen bg-gradient-to-br from-brand-cream via-white to-brand-cream">
+      <aside className="relative hidden lg:flex w-[42%] max-w-xl flex-col justify-between overflow-hidden bg-brand-ink px-10 py-10 text-white">
+        <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-brand-red/20 blur-3xl" />
+        <div className="pointer-events-none absolute bottom-0 left-0 h-48 w-48 rounded-full bg-white/5 blur-2xl" />
+
         <Link
           to="/"
-          className="inline-flex items-center gap-2 text-sm font-semibold text-brand-brown-lt transition hover:text-brand-ink"
+          className="relative z-10 inline-flex items-center gap-2 text-sm font-semibold text-white/70 transition hover:text-white"
         >
           <ArrowLeft size={16} /> Back to website
         </Link>
 
-        <div className="py-6 text-center">
-          <Logo className="mx-auto h-16 w-auto max-w-[140px] object-contain" />
-          <p className="mt-5 font-display text-2xl font-extrabold text-brand-ink">
-            Mr <span className="text-gradient-brand">Vilz</span>
+        <div className="relative z-10 py-10 text-center">
+          <Logo className="mx-auto h-20 w-auto max-w-[160px] object-contain drop-shadow-lg" />
+          <p className="mt-6 font-display text-3xl font-extrabold">
+            Mr <span className="text-brand-red">Vilz</span> Admin
           </p>
-          <p className="mt-1 text-xs font-medium text-brand-brown-lt">Nature · Media · Action</p>
-          <div className="mt-5 flex flex-wrap justify-center gap-1.5">
-            {["Content", "Projects", "Team", "Gallery"].map((tag) => (
+          <p className="mt-2 text-sm text-white/65">Nature · Media · Conservation</p>
+          <div className="mt-8 flex flex-wrap justify-center gap-2">
+            {["Stats", "Team", "Gallery", "Careers"].map((tag) => (
               <span
                 key={tag}
-                className="rounded-full border border-brand-ink/10 bg-brand-cream px-2.5 py-0.5 text-[10px] font-bold text-brand-brown"
+                className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold text-white/85"
               >
                 {tag}
               </span>
@@ -85,16 +88,16 @@ export default function LoginPage() {
           </div>
         </div>
 
-        <p className="text-center text-[11px] leading-relaxed text-brand-brown-lt">
-          Admin workspace for Mr Vilz — protect Sri Lanka&apos;s environment.
+        <p className="relative z-10 text-sm leading-relaxed text-white/55">
+          Secure workspace for managing Mr Vilz content, team, careers, and community applications.
         </p>
       </aside>
 
-      {/* Right — sign in */}
-      <main className="flex flex-1 flex-col justify-center px-5 py-10 sm:px-10">
+      <main className="relative flex flex-1 flex-col justify-center px-5 py-12 sm:px-10">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(200,0,10,0.08),transparent_50%)]" />
         <Link
           to="/"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-brand-brown-lt hover:text-brand-ink lg:hidden"
+          className="relative mb-8 inline-flex items-center gap-2 text-sm font-semibold text-brand-brown-lt hover:text-brand-ink lg:hidden"
         >
           <ArrowLeft size={16} /> Back to website
         </Link>
@@ -102,83 +105,85 @@ export default function LoginPage() {
         <form
           noValidate
           onSubmit={handleSubmit}
-          className="mx-auto w-full max-w-md rounded-2xl border border-brand-ink/8 bg-white p-7 shadow-[0_20px_50px_rgba(26,16,8,0.08)] sm:p-9"
+          className="relative mx-auto w-full max-w-md overflow-hidden rounded-3xl border border-brand-ink/8 bg-white shadow-[0_24px_60px_rgba(26,16,8,0.12)]"
         >
-          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-brand-red">
-            <Sparkles size={14} /> Admin access
-          </p>
-          <h1 className="mt-2 font-display text-2xl font-extrabold text-brand-ink sm:text-3xl">
-            Sign in
-          </h1>
-          <p className="mt-1 text-sm text-brand-brown-lt">
-            Manage stats, team, projects, gallery & applications
-          </p>
-
-          <div className="mt-8 space-y-5" key={shakeKey}>
-            <LoginField
-              label="Username"
-              id="admin-username"
-              value={form.username}
-              error={fieldErrors.username}
-              shake={Boolean(formError)}
-              onChange={(v) => updateField("username", v)}
-              autoComplete="username"
-            />
-            <LoginField
-              label="Password"
-              id="admin-password"
-              type="password"
-              value={form.password}
-              error={fieldErrors.password}
-              shake={Boolean(formError)}
-              onChange={(v) => updateField("password", v)}
-              autoComplete="current-password"
-            />
+          <div className="border-b border-brand-ink/6 bg-gradient-to-r from-brand-cream/80 to-white px-7 py-6 sm:px-9">
+            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.2em] text-brand-red">
+              <Sparkles size={14} /> Admin access
+            </p>
+            <h1 className="mt-2 font-display text-2xl font-extrabold text-brand-ink sm:text-3xl">
+              Welcome back
+            </h1>
+            <p className="mt-1 text-sm text-brand-brown-lt">Sign in to manage your public website</p>
           </div>
 
-          {formError ? (
-            <p
-              className="field-shake mt-5 rounded-xl border border-brand-red/25 bg-brand-red/5 px-4 py-3 text-sm font-semibold text-brand-red"
-              role="alert"
-            >
-              {formError}
-            </p>
-          ) : null}
+          <div className="px-7 py-7 sm:px-9 sm:py-8">
+            <div className="space-y-5" key={shakeKey}>
+              <LoginField
+                label="Username"
+                id="admin-username"
+                value={form.username}
+                error={fieldErrors.username}
+                shake={Boolean(formError)}
+                onChange={(v) => updateField("username", v)}
+                autoComplete="username"
+              />
+              <label htmlFor="admin-password" className="block">
+                <span className="text-xs font-bold uppercase tracking-wider text-brand-brown-lt">
+                  Password
+                </span>
+                <PublicPasswordInput
+                  id="admin-password"
+                  value={form.password}
+                  invalid={Boolean(fieldErrors.password || formError)}
+                  onChange={(v) => updateField("password", v)}
+                  autoComplete="current-password"
+                />
+                {fieldErrors.password ? (
+                  <p className="mt-1.5 text-xs font-semibold text-brand-red">{fieldErrors.password}</p>
+                ) : null}
+              </label>
+            </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="mt-8 w-full rounded-xl bg-brand-red py-3.5 text-sm font-bold text-white transition hover:bg-brand-red-mid disabled:opacity-60"
-          >
-            {loading ? "Signing in…" : "Enter dashboard"}
-          </button>
+            {formError ? (
+              <p
+                className="field-shake mt-5 rounded-xl border border-brand-red/25 bg-brand-red/5 px-4 py-3 text-sm font-semibold text-brand-red"
+                role="alert"
+              >
+                {formError}
+              </p>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-brand-ink py-3.5 text-sm font-bold text-white transition hover:bg-brand-brown disabled:opacity-60"
+            >
+              <Lock size={16} />
+              {loading ? "Signing in…" : "Enter dashboard"}
+            </button>
+
+            <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-brand-brown-lt">
+              <Leaf size={12} />
+              Mr Vilz official admin panel
+            </p>
+          </div>
         </form>
       </main>
     </div>
   );
 }
 
-function LoginField({
-  label,
-  id,
-  type = "text",
-  value,
-  error,
-  shake = false,
-  onChange,
-  autoComplete
-}) {
+function LoginField({ label, id, value, error, shake = false, onChange, autoComplete }) {
   const showMsg = Boolean(error && error.trim());
   const invalid = showMsg || shake;
 
   return (
     <label htmlFor={id} className="block">
-      <span className="text-xs font-bold uppercase tracking-wider text-brand-brown-lt">
-        {label}
-      </span>
+      <span className="text-xs font-bold uppercase tracking-wider text-brand-brown-lt">{label}</span>
       <input
         id={id}
-        type={type}
+        type="text"
         value={value}
         autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)}

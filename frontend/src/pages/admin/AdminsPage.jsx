@@ -22,6 +22,7 @@ import {
   AdminEmpty,
   AdminListCard
 } from "../../components/admin/AdminUi";
+import { AdminPasswordInput } from "../../components/admin/PasswordInput";
 
 const EMPTY_FORM = {
   name: "",
@@ -184,9 +185,8 @@ export default function AdminsPage() {
               />
             </AdminField>
             <AdminField label="Password" required hint="Minimum 8 characters" className="sm:col-span-2">
-              <AdminInput
+              <AdminPasswordInput
                 required
-                type="password"
                 autoComplete="new-password"
                 value={form.password}
                 onChange={(e) => updateForm(setForm, "password", e.target.value)}
@@ -260,8 +260,7 @@ export default function AdminsPage() {
                         hint="Leave blank to keep current password"
                         className="sm:col-span-2"
                       >
-                        <AdminInput
-                          type="password"
+                        <AdminPasswordInput
                           autoComplete="new-password"
                           value={editForm.password}
                           onChange={(e) => updateForm(setEditForm, "password", e.target.value)}

@@ -5,26 +5,26 @@ import { ADMIN_DASHBOARD_GROUPS } from "../../config/adminNav";
 export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-6xl">
-      <div className="rounded-2xl border border-slate-200/80 bg-gradient-to-br from-white via-white to-brand-cream/40 p-6 shadow-sm sm:p-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-red">
-              <LayoutDashboard size={14} />
-              Overview
-            </p>
-            <h2 className="mt-2 font-display text-2xl font-extrabold text-brand-ink sm:text-3xl">
-              Welcome back
-            </h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-600 sm:text-base">
-              Manage your public website content, team, messages, and applications from the
-              sections below.
-            </p>
-          </div>
+      <div className="overflow-hidden rounded-2xl border border-brand-ink/8 bg-white shadow-sm lg:rounded-3xl">
+        <div className="border-b border-brand-ink/6 bg-brand-ink px-6 py-5 sm:px-8">
+          <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.15em] text-brand-red">
+            <LayoutDashboard size={14} />
+            Overview
+          </p>
+          <h2 className="mt-2 font-display text-2xl font-extrabold text-white sm:text-3xl">
+            Welcome back
+          </h2>
+        </div>
+        <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <p className="max-w-xl text-sm leading-relaxed text-brand-brown sm:text-base">
+            Manage your public website content, team, messages, and applications from the sections
+            below.
+          </p>
           <Link
             to="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-brand-ink px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-brown"
+            className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-brand-red px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-red-mid sm:self-auto"
           >
             Preview site
             <ArrowUpRight size={16} />
@@ -35,7 +35,7 @@ export default function DashboardPage() {
       <div className="mt-8 space-y-10">
         {ADMIN_DASHBOARD_GROUPS.map((group) => (
           <section key={group.label}>
-            <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.15em] text-slate-400">
+            <h3 className="mb-4 text-xs font-bold uppercase tracking-[0.15em] text-brand-brown-lt">
               {group.label}
             </h3>
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -45,7 +45,7 @@ export default function DashboardPage() {
                   <Link
                     key={card.to}
                     to={card.to}
-                    className="group flex flex-col rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm transition hover:border-brand-red/25 hover:shadow-md"
+                    className="group flex flex-col rounded-2xl border border-brand-ink/8 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-red/30 hover:shadow-lg"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <span

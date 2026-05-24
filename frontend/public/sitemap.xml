@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>/discover</loc><changefreq>monthly</changefreq><priority>0.95</priority></url>
-  <url><loc>/gallery</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>/careers</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>/careers/apply</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-  <url><loc>/join</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
-  <url><loc>/contact</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.mrvilz.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://www.mrvilz.com/discover</loc><changefreq>weekly</changefreq><priority>0.98</priority></url>
+  <url><loc>https://www.mrvilz.com/gallery</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mrvilz.com/careers</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mrvilz.com/join</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://www.mrvilz.com/contact</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>
+  <url><loc>https://www.mrvilz.com/team-members</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
+  <url><loc>https://www.mrvilz.com/team-members/nadeesha</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.mrvilz.com/team-members/chamidu</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.mrvilz.com/team-members/pabodha</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://www.mrvilz.com/team-members/nethmina</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>

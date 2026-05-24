@@ -43,27 +43,25 @@ export default function AdminLayout() {
   const pageTitle = getPageTitle(location.pathname);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Mobile overlay */}
+    <div className="min-h-screen bg-[#f4f2ef]">
       {mobileOpen ? (
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-40 bg-brand-ink/40 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-brand-ink/50 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       ) : null}
 
-      {/* Sidebar — drawer on mobile, fixed on desktop */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[min(100%,280px)] flex-col border-r border-slate-200 bg-white shadow-xl transition-transform duration-300 ease-out lg:z-30 lg:w-64 lg:translate-x-0 lg:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-50 w-[min(100%,288px)] shadow-2xl transition-transform duration-300 ease-out lg:z-30 lg:w-[260px] lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         <button
           type="button"
           aria-label="Close menu"
-          className="absolute right-3 top-4 rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+          className="absolute right-3 top-4 z-10 rounded-lg p-2 text-white/70 hover:bg-white/10 lg:hidden"
           onClick={() => setMobileOpen(false)}
         >
           <X size={20} />
@@ -75,28 +73,27 @@ export default function AdminLayout() {
         />
       </aside>
 
-      {/* Main column */}
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-slate-200/80 bg-white/90 px-4 py-3 backdrop-blur-md sm:px-6 lg:px-8">
+      <div className="lg:pl-[260px]">
+        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-brand-ink/8 bg-white/95 px-4 py-3.5 shadow-sm backdrop-blur-md sm:px-6 lg:px-8">
           <button
             type="button"
             aria-label="Open menu"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-brand-ink shadow-sm lg:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand-ink/10 bg-brand-cream text-brand-ink lg:hidden"
             onClick={() => setMobileOpen(true)}
           >
             <Menu size={20} />
           </button>
           <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 lg:hidden">
-              MrVilz Admin
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-red lg:hidden">
+              Mr Vilz Admin
             </p>
             <h1 className="truncate font-display text-lg font-bold text-brand-ink sm:text-xl">
               {pageTitle}
             </h1>
           </div>
-          <div className="hidden items-center gap-2 rounded-full bg-slate-100 px-3 py-1.5 sm:flex">
+          <div className="hidden items-center gap-2 rounded-full border border-brand-ink/8 bg-brand-cream px-3 py-1.5 sm:flex">
             <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
-            <span className="max-w-[120px] truncate text-xs font-semibold text-slate-600">
+            <span className="max-w-[140px] truncate text-xs font-semibold text-brand-brown">
               {admin?.username}
             </span>
           </div>

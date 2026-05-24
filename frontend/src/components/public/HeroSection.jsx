@@ -1,5 +1,4 @@
 import ScrollLink from "../navigation/ScrollLink";
-import { ArrowDown } from "lucide-react";
 
 const heroBtn =
   "inline-flex shrink-0 items-center justify-center rounded-full px-6 py-3 text-sm font-bold transition sm:px-7";
@@ -71,15 +70,6 @@ export default function HeroSection({ hero }) {
           </a>
         </div>
       </div>
-
-      <a
-        href="#about"
-        className="scroll-hint absolute bottom-[10.5rem] left-1/2 z-10 flex -translate-x-1/2 flex-col items-center gap-1 text-white/50 sm:bottom-[11rem] lg:bottom-[9rem]"
-        aria-label="Scroll to about"
-      >
-        <span className="text-[10px] font-bold uppercase tracking-widest">Scroll</span>
-        <ArrowDown size={18} />
-      </a>
     </section>
   );
 }

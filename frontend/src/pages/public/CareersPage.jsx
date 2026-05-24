@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { fetchCareers } from "../../api/client";
+import CareersJobSchema from "../../components/seo/CareersJobSchema";
 
 function CareerFeedCard({ post, index }) {
   return (
@@ -65,6 +66,7 @@ export default function CareersPage() {
 
   return (
     <main className="px-5 pb-20 pt-28 lg:px-8">
+      <CareersJobSchema />
       <div className="mx-auto max-w-3xl">
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }}>
           <p className="text-xs font-bold uppercase tracking-[0.2em] text-brand-brown-lt">Careers</p>

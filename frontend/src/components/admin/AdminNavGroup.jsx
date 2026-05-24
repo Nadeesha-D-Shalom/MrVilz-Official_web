@@ -10,18 +10,18 @@ function NavItem({ link, onNavigate }) {
       end={link.end}
       onClick={onNavigate}
       className={({ isActive }) =>
-        `flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition ${
+        `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${
           isActive
-            ? "bg-brand-red text-white shadow-sm shadow-brand-red/25"
-            : "text-slate-600 hover:bg-slate-100 hover:text-brand-ink"
+            ? "bg-brand-red text-white shadow-lg shadow-brand-red/30"
+            : "text-white/65 hover:bg-white/8 hover:text-white"
         }`
       }
     >
       {({ isActive }) => (
         <>
           <span
-            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-              isActive ? "bg-white/15" : "bg-slate-100 text-slate-600"
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+              isActive ? "bg-white/15" : "bg-white/8 text-white/70"
             }`}
           >
             <Icon size={16} strokeWidth={2.25} />
@@ -63,12 +63,12 @@ export default function AdminNavGroup({ group, onNavigate }) {
   }
 
   return (
-    <div className="rounded-xl border border-transparent">
+    <div>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left text-xs font-bold uppercase tracking-[0.12em] transition ${
-          active ? "bg-brand-red/8 text-brand-red" : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+        className={`flex w-full items-center justify-between gap-2 rounded-xl px-3 py-2.5 text-left text-[10px] font-bold uppercase tracking-[0.14em] transition ${
+          active ? "bg-white/10 text-white" : "text-white/45 hover:bg-white/5 hover:text-white/70"
         }`}
         aria-expanded={open}
       >

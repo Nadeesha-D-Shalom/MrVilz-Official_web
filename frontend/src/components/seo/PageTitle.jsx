@@ -1,49 +1,83 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { SITE_TAB_NAME } from "../../config/seo";
-import { TEAM_PROFILES } from "../../config/teamProfiles";
+import {
+  SITE_URL,
+  seoForPath,
+  buildOrganizationJsonLd,
+  buildWebSiteJsonLd,
+  buildFaqJsonLd,
+  ORGANIZATION
+} from "../../config/seo";
 
-const DEFAULT_TITLE = SITE_TAB_NAME;
+const OG_IMAGE = `${SITE_URL}/mrVilz_logo.png`;
 
-const ROUTE_TITLES = {
-  "/": DEFAULT_TITLE,
-  "/gallery": `Gallery — ${SITE_TAB_NAME}`,
-  "/careers": `Careers — ${SITE_TAB_NAME}`,
-  "/careers/apply": `Apply — Careers — ${SITE_TAB_NAME}`,
-  "/join": `Become a Member — ${SITE_TAB_NAME}`,
-  "/contact": `Contact — ${SITE_TAB_NAME}`,
-  "/discover": `AI Discover — ${SITE_TAB_NAME}`,
-  "/team-members": `Our Team Members — ${SITE_TAB_NAME}`,
-  "/admin/login": `Admin Sign In — ${SITE_TAB_NAME}`,
-  "/admin": `Admin Dashboard — ${SITE_TAB_NAME}`,
-  "/admin/stats": `Stats — Admin — ${SITE_TAB_NAME}`,
-  "/admin/social": `Social Links — Admin — ${SITE_TAB_NAME}`,
-  "/admin/team": `Team — Admin — ${SITE_TAB_NAME}`,
-  "/admin/projects": `Projects — Admin — ${SITE_TAB_NAME}`,
-  "/admin/messages": `Messages — Admin — ${SITE_TAB_NAME}`,
-  "/admin/applications": `Applications — Admin — ${SITE_TAB_NAME}`,
-  "/admin/job-applications": `Job Applications — Admin — ${SITE_TAB_NAME}`,
-  "/admin/gallery": `Gallery — Admin — ${SITE_TAB_NAME}`,
-  "/admin/careers": `Career Posts — Admin — ${SITE_TAB_NAME}`,
-  "/admin/admins": `Admin Users — Admin — ${SITE_TAB_NAME}`
-};
-
-function titleForPath(pathname) {
-  const profileMatch = pathname.match(/^\/team-members\/([^/]+)$/);
-  if (profileMatch) {
-    const slug = profileMatch[1];
-    const profile = TEAM_PROFILES[slug];
-    const name = profile?.greetingName || slug.replace(/-/g, " ");
-    return `${name} — Our Team — ${SITE_TAB_NAME}`;
+function upsertMeta(attr, key, content) {
+  if (!content) return;
+  let el = document.head.querySelector(`meta[${attr}="${key}"]`);
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
   }
-  return ROUTE_TITLES[pathname] || DEFAULT_TITLE;
+  el.setAttribute("content", content);
+}
+
+function upsertLink(rel, href) {
+  if (!href) return;
+  let el = document.head.querySelector(`link[rel="${rel}"]`);
+  if (!el) {
+    el = document.createElement("link");
+    el.setAttribute("rel", rel);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("href", href);
+}
+
+function upsertJsonLd(id, data) {
+  let el = document.getElementById(id);
+  if (!el) {
+    el = document.createElement("script");
+    el.id = id;
+    el.type = "application/ld+json";
+    document.head.appendChild(el);
+  }
+  el.textContent = JSON.stringify(data);
 }
 
 export default function PageTitle() {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    document.title = titleForPath(pathname);
+    const seo = seoForPath(pathname);
+    const isPublic = !pathname.startsWith("/admin");
+
+    document.title = seo.title;
+
+    if (!isPublic) return;
+
+    upsertMeta("name", "description", seo.description);
+    upsertMeta("name", "keywords", seo.keywords);
+    upsertMeta("name", "author", ORGANIZATION.legalName);
+    upsertMeta("name", "robots", "index, follow, max-image-preview:large");
+
+    upsertLink("canonical", seo.url);
+
+    upsertMeta("property", "og:type", "website");
+    upsertMeta("property", "og:site_name", "Mr Vilz - Official");
+    upsertMeta("property", "og:url", seo.url);
+    upsertMeta("property", "og:title", seo.title);
+    upsertMeta("property", "og:description", seo.description);
+    upsertMeta("property", "og:image", OG_IMAGE);
+    upsertMeta("property", "og:image:alt", "Mr Vilz Official Logo");
+
+    upsertMeta("name", "twitter:card", "summary_large_image");
+    upsertMeta("name", "twitter:title", seo.title);
+    upsertMeta("name", "twitter:description", seo.description);
+    upsertMeta("name", "twitter:image", OG_IMAGE);
+
+    upsertJsonLd("seo-org-jsonld", buildOrganizationJsonLd());
+    upsertJsonLd("seo-website-jsonld", buildWebSiteJsonLd());
+    upsertJsonLd("seo-faq-jsonld", buildFaqJsonLd());
   }, [pathname]);
 
   return null;

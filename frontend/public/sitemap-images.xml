@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://www.mrvilz.com/</loc>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/mrVilz_logo.png</image:loc>
+      <image:title>Mr Vilz Official Logo</image:title>
+      <image:caption>Mr Vilz — youth-led environmental and creative media organization in Sri Lanka</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/background.png</image:loc>
+      <image:title>Mr Vilz Hero — Marine Conservation Sri Lanka</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/beach.PNG</image:loc>
+      <image:title>Clean Panadura Beach Sri Lanka — Mr Vilz</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/plant.PNG</image:loc>
+      <image:title>Plants Donation Campaign — Mr Vilz</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/nadeesha1.JPG</image:loc>
+      <image:title>Nadeesha D Shalom — Founder Mr Vilz</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/chamidu.jpeg</image:loc>
+      <image:title>Chamidu — Media Production Mr Vilz</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/paboda.jpeg</image:loc>
+      <image:title>Pabodha Nuwangi — Creative Producer Mr Vilz</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/nethmina.JPG</image:loc>
+      <image:title>Nethmina — Creative Director Mr Vilz</image:title>
+    </image:image>
+  </url>
+  <url>
+    <loc>https://www.mrvilz.com/gallery</loc>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/beach.PNG</image:loc>
+      <image:title>Beach Cleanup Gallery — Mr Vilz</image:title>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mrvilz.com/images/plant.PNG</image:loc>
+      <image:title>Tree Planting Gallery — Mr Vilz</image:title>
+    </image:image>
+  </url>
+</urlset>
