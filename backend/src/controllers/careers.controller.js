@@ -1,69 +1,39 @@
-const { query, queryOne } = require("../config/db");
+const { CareerPost } = require("../models");
+const { getContentByKey, upsertContent } = require("../utils/content");
+const { careerPostPublic, careerPostAdmin } = require("../utils/serialize");
+const { isValidId, toObjectId } = require("../utils/mongoId");
 
 async function getCareersPageSettings() {
-  const row = await queryOne(
-    "SELECT content_json FROM site_content WHERE content_key = 'careers' LIMIT 1"
-  );
-  if (!row) {
+  const data = await getContentByKey("careers");
+  if (!data) {
     return {
       title: "Careers at Mr Vilz",
       intro:
         "Join a youth-led movement protecting Sri Lanka's beaches, forests, and wildlife through media, community action, and environmental projects."
     };
   }
-  const data =
-    typeof row.content_json === "string" ? JSON.parse(row.content_json) : row.content_json;
   return {
     title: data.title || "Careers at Mr Vilz",
     intro: data.intro || ""
   };
 }
 
-async function saveCareersPageSettings({ title, intro }) {
-  const payload = JSON.stringify({ title, intro });
-  const existing = await queryOne(
-    "SELECT id FROM site_content WHERE content_key = 'careers' LIMIT 1"
+function parsePublished(value) {
+  return (
+    value === true || value === "true" || value === "1" || value === 1 ? 1 : 0
   );
-  if (existing) {
-    await query(
-      "UPDATE site_content SET content_json = :json WHERE content_key = 'careers'",
-      { json: payload }
-    );
-  } else {
-    await query(
-      "INSERT INTO site_content (content_key, content_json) VALUES ('careers', :json)",
-      { json: payload }
-    );
-  }
 }
 
-function mapCareerPost(row) {
-  return {
-    id: row.id,
-    title: row.title,
-    description: row.description,
-    roleType: row.role_type,
-    isPublished: Boolean(row.is_published),
-    sortOrder: row.sort_order,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at
-  };
-}
-
-/** Public — published posts only */
 async function listPublishedCareers(_req, res, next) {
   try {
     const settings = await getCareersPageSettings();
-    const posts = await query(
-      `SELECT id, title, description, role_type AS roleType, sort_order AS sortOrder, created_at AS createdAt
-       FROM career_posts
-       WHERE is_published = 1
-       ORDER BY sort_order ASC, created_at DESC`
-    );
+    const posts = await CareerPost.find({ is_published: 1 })
+      .sort({ sort_order: 1, created_at: -1 })
+      .lean();
     return res.json({
       careers: {
         ...settings,
-        posts
+        posts: posts.map(careerPostPublic)
       }
     });
   } catch (error) {
@@ -71,18 +41,13 @@ async function listPublishedCareers(_req, res, next) {
   }
 }
 
-/** Admin — all posts */
 async function listCareerPosts(_req, res, next) {
   try {
-    const posts = await query(
-      `SELECT id, title, description, role_type, is_published, sort_order, created_at, updated_at
-       FROM career_posts
-       ORDER BY sort_order ASC, created_at DESC`
-    );
+    const posts = await CareerPost.find().sort({ sort_order: 1, created_at: -1 }).lean();
     const settings = await getCareersPageSettings();
     return res.json({
       settings,
-      posts: posts.map(mapCareerPost)
+      posts: posts.map(careerPostAdmin)
     });
   } catch (error) {
     return next(error);
@@ -91,15 +56,14 @@ async function listCareerPosts(_req, res, next) {
 
 async function getCareerPost(req, res, next) {
   try {
-    const row = await queryOne(
-      `SELECT id, title, description, role_type, is_published, sort_order, created_at, updated_at
-       FROM career_posts WHERE id = :id`,
-      { id: req.params.id }
-    );
-    if (!row) {
+    if (!isValidId(req.params.id)) {
       return res.status(404).json({ message: "Career post not found." });
     }
-    return res.json({ post: mapCareerPost(row) });
+    const post = await CareerPost.findById(req.params.id).lean();
+    if (!post) {
+      return res.status(404).json({ message: "Career post not found." });
+    }
+    return res.json({ post: careerPostAdmin(post) });
   } catch (error) {
     return next(error);
   }
@@ -113,28 +77,15 @@ async function createCareerPost(req, res, next) {
       return res.status(400).json({ message: "Title and description are required." });
     }
 
-    const isPublished =
-      req.body.isPublished === true ||
-      req.body.isPublished === "true" ||
-      req.body.isPublished === "1" ||
-      req.body.isPublished === 1;
-
-    const result = await query(
-      `INSERT INTO career_posts (title, description, role_type, is_published, sort_order)
-       VALUES (:title, :description, :roleType, :isPublished, :sortOrder)`,
-      {
-        title,
-        description,
-        roleType: req.body.roleType?.trim() || null,
-        isPublished: isPublished ? 1 : 0,
-        sortOrder: Number(req.body.sortOrder) || 0
-      }
-    );
-
-    const post = await queryOne("SELECT * FROM career_posts WHERE id = :id", {
-      id: result.insertId
+    const post = await CareerPost.create({
+      title,
+      description,
+      role_type: req.body.roleType?.trim() || null,
+      is_published: parsePublished(req.body.isPublished),
+      sort_order: Number(req.body.sortOrder) || 0
     });
-    return res.status(201).json({ post: mapCareerPost(post) });
+
+    return res.status(201).json({ post: careerPostAdmin(post.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -142,50 +93,32 @@ async function createCareerPost(req, res, next) {
 
 async function updateCareerPost(req, res, next) {
   try {
-    const id = req.params.id;
-    const existing = await queryOne("SELECT id FROM career_posts WHERE id = :id", { id });
+    const oid = toObjectId(req.params.id);
+    if (!oid) {
+      return res.status(404).json({ message: "Career post not found." });
+    }
+
+    const existing = await CareerPost.findById(oid);
     if (!existing) {
       return res.status(404).json({ message: "Career post not found." });
     }
 
-    const title = req.body.title !== undefined ? String(req.body.title).trim() : null;
-    const description =
-      req.body.description !== undefined ? String(req.body.description).trim() : null;
-    const roleType =
-      req.body.roleType !== undefined
-        ? req.body.roleType
-          ? String(req.body.roleType).trim()
-          : null
-        : null;
-    const sortOrder =
-      req.body.sortOrder !== undefined && req.body.sortOrder !== ""
-        ? Number(req.body.sortOrder)
-        : null;
-
-    let isPublished = null;
+    if (req.body.title !== undefined) existing.title = String(req.body.title).trim();
+    if (req.body.description !== undefined) {
+      existing.description = String(req.body.description).trim();
+    }
+    if (req.body.roleType !== undefined) {
+      existing.role_type = req.body.roleType ? String(req.body.roleType).trim() : null;
+    }
+    if (req.body.sortOrder !== undefined && req.body.sortOrder !== "") {
+      existing.sort_order = Number(req.body.sortOrder);
+    }
     if (req.body.isPublished !== undefined && req.body.isPublished !== "") {
-      isPublished =
-        req.body.isPublished === true ||
-        req.body.isPublished === "true" ||
-        req.body.isPublished === "1" ||
-        req.body.isPublished === 1
-          ? 1
-          : 0;
+      existing.is_published = parsePublished(req.body.isPublished);
     }
 
-    await query(
-      `UPDATE career_posts
-       SET title = COALESCE(:title, title),
-           description = COALESCE(:description, description),
-           role_type = COALESCE(:roleType, role_type),
-           is_published = COALESCE(:isPublished, is_published),
-           sort_order = COALESCE(:sortOrder, sort_order)
-       WHERE id = :id`,
-      { id, title, description, roleType, isPublished, sortOrder }
-    );
-
-    const post = await queryOne("SELECT * FROM career_posts WHERE id = :id", { id });
-    return res.json({ post: mapCareerPost(post) });
+    await existing.save();
+    return res.json({ post: careerPostAdmin(existing.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -193,12 +126,14 @@ async function updateCareerPost(req, res, next) {
 
 async function deleteCareerPost(req, res, next) {
   try {
-    const id = req.params.id;
-    const existing = await queryOne("SELECT id FROM career_posts WHERE id = :id", { id });
-    if (!existing) {
+    const oid = toObjectId(req.params.id);
+    if (!oid) {
       return res.status(404).json({ message: "Career post not found." });
     }
-    await query("DELETE FROM career_posts WHERE id = :id", { id });
+    const result = await CareerPost.deleteOne({ _id: oid });
+    if (!result.deletedCount) {
+      return res.status(404).json({ message: "Career post not found." });
+    }
     return res.json({ message: "Career post deleted." });
   } catch (error) {
     return next(error);
@@ -212,7 +147,7 @@ async function updateCareersSettings(req, res, next) {
     if (!title) {
       return res.status(400).json({ message: "Page title is required." });
     }
-    await saveCareersPageSettings({ title, intro });
+    await upsertContent("careers", { title, intro });
     return res.json({ settings: { title, intro } });
   } catch (error) {
     return next(error);

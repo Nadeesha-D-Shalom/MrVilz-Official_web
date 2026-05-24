@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { queryOne } = require("../config/db");
+const { Admin } = require("../models");
 const env = require("../config/env");
 
 async function login(req, res, next) {
@@ -11,11 +11,7 @@ async function login(req, res, next) {
       return res.status(400).json({ message: "Username and password are required." });
     }
 
-    const admin = await queryOne(
-      `SELECT id, username, password_hash, display_name, email, phone, address, is_active
-       FROM admins WHERE username = :username LIMIT 1`,
-      { username }
-    );
+    const admin = await Admin.findOne({ username }).lean();
 
     if (!admin || admin.is_active === 0) {
       return res.status(401).json({ message: "Invalid credentials." });
@@ -26,16 +22,15 @@ async function login(req, res, next) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
-    const token = jwt.sign(
-      { id: admin.id, username: admin.username },
-      env.jwt.secret,
-      { expiresIn: env.jwt.expiresIn }
-    );
+    const id = String(admin._id);
+    const token = jwt.sign({ id, username: admin.username }, env.jwt.secret, {
+      expiresIn: env.jwt.expiresIn
+    });
 
     return res.json({
       token,
       admin: {
-        id: admin.id,
+        id,
         username: admin.username,
         displayName: admin.display_name,
         name: admin.display_name,

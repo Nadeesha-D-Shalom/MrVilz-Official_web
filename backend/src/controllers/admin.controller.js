@@ -1,4 +1,16 @@
-const { query, queryOne } = require("../config/db");
+const {
+  SiteStat,
+  SocialLink,
+  TeamMember,
+  Project,
+  ContactMessage,
+  GalleryItem,
+  TeamApplication,
+  JobApplication
+} = require("../models");
+const { getContentByKey, upsertContent } = require("../utils/content");
+const { toObjectId } = require("../utils/mongoId");
+const { withId, withIdList, statAdmin, messageAdmin, teamAppAdmin, jobAppAdmin } = require("../utils/serialize");
 const {
   publicUrlForStoredFile,
   fileHashFromFilename,
@@ -21,40 +33,18 @@ function parseHighlights(raw) {
   }
 }
 
-async function upsertContent(key, value) {
-  const existing = await queryOne(
-    "SELECT id FROM site_content WHERE content_key = :key LIMIT 1",
-    { key }
-  );
-
-  if (existing) {
-    await query(
-      "UPDATE site_content SET content_json = :json WHERE content_key = :key",
-      { key, json: JSON.stringify(value) }
-    );
-  } else {
-    await query(
-      "INSERT INTO site_content (content_key, content_json) VALUES (:key, :json)",
-      { key, json: JSON.stringify(value) }
-    );
-  }
+function parseActive(value) {
+  if (value === undefined || value === "") return null;
+  return value === "true" || value === true || value === "1" ? 1 : 0;
 }
 
 async function updateHero(req, res, next) {
   try {
-    const current = await queryOne(
-      "SELECT content_json FROM site_content WHERE content_key = 'hero' LIMIT 1"
-    );
-    const hero =
-      typeof current?.content_json === "string"
-        ? JSON.parse(current.content_json)
-        : current?.content_json || {};
-
+    const hero = (await getContentByKey("hero")) || {};
     const nextHero = { ...hero, ...req.body };
     if (!["image", "video"].includes(nextHero.mediaType)) {
       return res.status(400).json({ message: "mediaType must be image or video." });
     }
-
     await upsertContent("hero", nextHero);
     return res.json({ hero: nextHero });
   } catch (error) {
@@ -73,11 +63,8 @@ async function updateAbout(req, res, next) {
 
 async function listStats(_req, res, next) {
   try {
-    const stats = await query(
-      `SELECT id, stat_key AS statKey, label, value, suffix, sort_order AS sortOrder, is_active AS isActive
-       FROM site_stats ORDER BY sort_order ASC`
-    );
-    return res.json({ stats });
+    const stats = await SiteStat.find().sort({ sort_order: 1 }).lean();
+    return res.json({ stats: stats.map(statAdmin) });
   } catch (error) {
     return next(error);
   }
@@ -85,26 +72,21 @@ async function listStats(_req, res, next) {
 
 async function updateStat(req, res, next) {
   try {
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Stat not found." });
+
+    const stat = await SiteStat.findById(oid);
+    if (!stat) return res.status(404).json({ message: "Stat not found." });
+
     const { label, value, suffix, sortOrder, isActive } = req.body;
-    await query(
-      `UPDATE site_stats
-       SET label = COALESCE(:label, label),
-           value = COALESCE(:value, value),
-           suffix = COALESCE(:suffix, suffix),
-           sort_order = COALESCE(:sortOrder, sort_order),
-           is_active = COALESCE(:isActive, is_active)
-       WHERE id = :id`,
-      {
-        id: req.params.id,
-        label,
-        value,
-        suffix,
-        sortOrder,
-        isActive
-      }
-    );
-    const stat = await queryOne("SELECT * FROM site_stats WHERE id = :id", { id: req.params.id });
-    return res.json({ stat });
+    if (label !== undefined) stat.label = label;
+    if (value !== undefined) stat.value = value;
+    if (suffix !== undefined) stat.suffix = suffix;
+    if (sortOrder !== undefined) stat.sort_order = sortOrder;
+    if (isActive !== undefined) stat.is_active = isActive ? 1 : 0;
+
+    await stat.save();
+    return res.json({ stat: statAdmin(stat.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -112,8 +94,8 @@ async function updateStat(req, res, next) {
 
 async function listSocialLinks(_req, res, next) {
   try {
-    const links = await query("SELECT * FROM social_links ORDER BY sort_order ASC");
-    return res.json({ links });
+    const links = await SocialLink.find().sort({ sort_order: 1 }).lean();
+    return res.json({ links: withIdList(links) });
   } catch (error) {
     return next(error);
   }
@@ -121,19 +103,21 @@ async function listSocialLinks(_req, res, next) {
 
 async function updateSocialLink(req, res, next) {
   try {
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Link not found." });
+
+    const link = await SocialLink.findById(oid);
+    if (!link) return res.status(404).json({ message: "Link not found." });
+
     const { label, url, icon, sortOrder, isActive } = req.body;
-    await query(
-      `UPDATE social_links
-       SET label = COALESCE(:label, label),
-           url = COALESCE(:url, url),
-           icon = COALESCE(:icon, icon),
-           sort_order = COALESCE(:sortOrder, sort_order),
-           is_active = COALESCE(:isActive, is_active)
-       WHERE id = :id`,
-      { id: req.params.id, label, url, icon, sortOrder, isActive }
-    );
-    const link = await queryOne("SELECT * FROM social_links WHERE id = :id", { id: req.params.id });
-    return res.json({ link });
+    if (label !== undefined) link.label = label;
+    if (url !== undefined) link.url = url;
+    if (icon !== undefined) link.icon = icon;
+    if (sortOrder !== undefined) link.sort_order = sortOrder;
+    if (isActive !== undefined) link.is_active = isActive ? 1 : 0;
+
+    await link.save();
+    return res.json({ link: withId(link.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -142,12 +126,8 @@ async function updateSocialLink(req, res, next) {
 async function createSocialLink(req, res, next) {
   try {
     const { platform, label, url, icon, sortOrder = 0 } = req.body;
-    const result = await query(
-      `INSERT INTO social_links (platform, label, url, icon, sort_order)
-       VALUES (:platform, :label, :url, :icon, :sortOrder)`,
-      { platform, label, url, icon, sortOrder }
-    );
-    return res.status(201).json({ id: result.insertId });
+    const link = await SocialLink.create({ platform, label, url, icon, sort_order: sortOrder });
+    return res.status(201).json({ id: String(link._id) });
   } catch (error) {
     return next(error);
   }
@@ -155,8 +135,8 @@ async function createSocialLink(req, res, next) {
 
 async function listTeam(_req, res, next) {
   try {
-    const team = await query("SELECT * FROM team_members ORDER BY sort_order ASC");
-    return res.json({ team });
+    const team = await TeamMember.find().sort({ sort_order: 1 }).lean();
+    return res.json({ team: withIdList(team) });
   } catch (error) {
     return next(error);
   }
@@ -174,13 +154,16 @@ async function createTeamMember(req, res, next) {
       imageUrl = teamImage.publicUrlForStoredFile(req.file.filename);
     }
 
-    const result = await query(
-      `INSERT INTO team_members (name, slug, position, bio, image_url, sort_order)
-       VALUES (:name, :slug, :position, :bio, :imageUrl, :sortOrder)`,
-      { name, slug, position, bio: bio || null, imageUrl, sortOrder }
-    );
-    const member = await queryOne("SELECT * FROM team_members WHERE id = :id", { id: result.insertId });
-    return res.status(201).json({ member });
+    const member = await TeamMember.create({
+      name,
+      slug,
+      position,
+      bio: bio || null,
+      image_url: imageUrl,
+      sort_order: sortOrder
+    });
+
+    return res.status(201).json({ member: withId(member.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -188,52 +171,36 @@ async function createTeamMember(req, res, next) {
 
 async function updateTeamMember(req, res, next) {
   try {
-    const id = req.params.id;
-    const existing = await queryOne("SELECT * FROM team_members WHERE id = :id", { id });
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Team member not found." });
+
+    const existing = await TeamMember.findById(oid);
     if (!existing) {
       return res.status(404).json({ message: "Team member not found." });
     }
 
-    const name = req.body.name !== undefined ? String(req.body.name).trim() : null;
-    const position = req.body.position !== undefined ? String(req.body.position).trim() : null;
-    const bio = req.body.bio !== undefined ? req.body.bio : null;
-    const sortOrder =
-      req.body.sortOrder !== undefined && req.body.sortOrder !== ""
-        ? Number(req.body.sortOrder)
-        : null;
-    const isActive =
-      req.body.isActive === undefined || req.body.isActive === ""
-        ? null
-        : req.body.isActive === "true" || req.body.isActive === true || req.body.isActive === "1"
-          ? 1
-          : 0;
-    const slug =
-      req.body.slug !== undefined && String(req.body.slug).trim()
-        ? String(req.body.slug).trim()
-        : name
-          ? slugify(name)
-          : null;
+    if (req.body.name !== undefined) existing.name = String(req.body.name).trim();
+    if (req.body.position !== undefined) existing.position = String(req.body.position).trim();
+    if (req.body.bio !== undefined) existing.bio = req.body.bio;
+    if (req.body.sortOrder !== undefined && req.body.sortOrder !== "") {
+      existing.sort_order = Number(req.body.sortOrder);
+    }
+    const active = parseActive(req.body.isActive);
+    if (active !== null) existing.is_active = active;
 
-    let imageUrl = null;
-    if (req.file) {
-      teamImage.deleteLocalFileIfExists(existing.image_url);
-      imageUrl = teamImage.publicUrlForStoredFile(req.file.filename);
+    if (req.body.slug !== undefined && String(req.body.slug).trim()) {
+      existing.slug = String(req.body.slug).trim();
+    } else if (req.body.name !== undefined) {
+      existing.slug = slugify(existing.name);
     }
 
-    await query(
-      `UPDATE team_members
-       SET name = COALESCE(:name, name),
-           slug = COALESCE(:slug, slug),
-           position = COALESCE(:position, position),
-           bio = COALESCE(:bio, bio),
-           image_url = COALESCE(:imageUrl, image_url),
-           sort_order = COALESCE(:sortOrder, sort_order),
-           is_active = COALESCE(:isActive, is_active)
-       WHERE id = :id`,
-      { id, name, slug, position, bio, imageUrl, sortOrder, isActive }
-    );
-    const member = await queryOne("SELECT * FROM team_members WHERE id = :id", { id });
-    return res.json({ member });
+    if (req.file) {
+      teamImage.deleteLocalFileIfExists(existing.image_url);
+      existing.image_url = teamImage.publicUrlForStoredFile(req.file.filename);
+    }
+
+    await existing.save();
+    return res.json({ member: withId(existing.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -241,10 +208,14 @@ async function updateTeamMember(req, res, next) {
 
 async function deleteTeamMember(req, res, next) {
   try {
-    const id = req.params.id;
-    const existing = await queryOne("SELECT image_url FROM team_members WHERE id = :id", { id });
-    await query("DELETE FROM team_members WHERE id = :id", { id });
-    if (existing) teamImage.deleteLocalFileIfExists(existing.image_url);
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Team member not found." });
+
+    const existing = await TeamMember.findById(oid);
+    if (!existing) return res.status(404).json({ message: "Team member not found." });
+
+    await TeamMember.deleteOne({ _id: oid });
+    teamImage.deleteLocalFileIfExists(existing.image_url);
     return res.json({ message: "Team member removed." });
   } catch (error) {
     return next(error);
@@ -253,8 +224,8 @@ async function deleteTeamMember(req, res, next) {
 
 async function listProjects(_req, res, next) {
   try {
-    const projects = await query("SELECT * FROM projects ORDER BY sort_order ASC");
-    return res.json({ projects });
+    const projects = await Project.find().sort({ sort_order: 1 }).lean();
+    return res.json({ projects: withIdList(projects) });
   } catch (error) {
     return next(error);
   }
@@ -273,21 +244,17 @@ async function createProject(req, res, next) {
       imageUrl = projectImage.publicUrlForStoredFile(req.file.filename);
     }
 
-    const result = await query(
-      `INSERT INTO projects (title, summary, progress, image_url, visual_layout, highlights, sort_order)
-       VALUES (:title, :summary, :progress, :imageUrl, :visualLayout, :highlights, :sortOrder)`,
-      {
-        title,
-        summary,
-        progress: progress ?? 0,
-        imageUrl,
-        visualLayout: visualLayout || "landscape",
-        highlights: JSON.stringify(highlights),
-        sortOrder
-      }
-    );
-    const project = await queryOne("SELECT * FROM projects WHERE id = :id", { id: result.insertId });
-    return res.status(201).json({ project });
+    const project = await Project.create({
+      title,
+      summary,
+      progress: progress ?? 0,
+      image_url: imageUrl,
+      visual_layout: visualLayout || "landscape",
+      highlights,
+      sort_order: sortOrder
+    });
+
+    return res.status(201).json({ project: withId(project.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -295,62 +262,35 @@ async function createProject(req, res, next) {
 
 async function updateProject(req, res, next) {
   try {
-    const id = req.params.id;
-    const existing = await queryOne("SELECT * FROM projects WHERE id = :id", { id });
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Project not found." });
+
+    const existing = await Project.findById(oid);
     if (!existing) {
       return res.status(404).json({ message: "Project not found." });
     }
 
-    const title = req.body.title !== undefined ? String(req.body.title).trim() : null;
-    const summary = req.body.summary !== undefined ? req.body.summary : null;
-    const progress =
-      req.body.progress !== undefined && req.body.progress !== ""
-        ? Number(req.body.progress)
-        : null;
-    const visualLayout = req.body.visualLayout !== undefined ? req.body.visualLayout : null;
+    if (req.body.title !== undefined) existing.title = String(req.body.title).trim();
+    if (req.body.summary !== undefined) existing.summary = req.body.summary;
+    if (req.body.progress !== undefined && req.body.progress !== "") {
+      existing.progress = Number(req.body.progress);
+    }
+    if (req.body.visualLayout !== undefined) existing.visual_layout = req.body.visualLayout;
     const highlights = parseHighlights(req.body.highlights);
-    const sortOrder =
-      req.body.sortOrder !== undefined && req.body.sortOrder !== ""
-        ? Number(req.body.sortOrder)
-        : null;
-    const isActive =
-      req.body.isActive === undefined || req.body.isActive === ""
-        ? null
-        : req.body.isActive === "true" || req.body.isActive === true || req.body.isActive === "1"
-          ? 1
-          : 0;
+    if (highlights) existing.highlights = highlights;
+    if (req.body.sortOrder !== undefined && req.body.sortOrder !== "") {
+      existing.sort_order = Number(req.body.sortOrder);
+    }
+    const active = parseActive(req.body.isActive);
+    if (active !== null) existing.is_active = active;
 
-    let imageUrl = null;
     if (req.file) {
       projectImage.deleteLocalFileIfExists(existing.image_url);
-      imageUrl = projectImage.publicUrlForStoredFile(req.file.filename);
+      existing.image_url = projectImage.publicUrlForStoredFile(req.file.filename);
     }
 
-    await query(
-      `UPDATE projects
-       SET title = COALESCE(:title, title),
-           summary = COALESCE(:summary, summary),
-           progress = COALESCE(:progress, progress),
-           image_url = COALESCE(:imageUrl, image_url),
-           visual_layout = COALESCE(:visualLayout, visual_layout),
-           highlights = COALESCE(:highlights, highlights),
-           sort_order = COALESCE(:sortOrder, sort_order),
-           is_active = COALESCE(:isActive, is_active)
-       WHERE id = :id`,
-      {
-        id,
-        title,
-        summary,
-        progress,
-        imageUrl,
-        visualLayout,
-        highlights: highlights ? JSON.stringify(highlights) : null,
-        sortOrder,
-        isActive
-      }
-    );
-    const project = await queryOne("SELECT * FROM projects WHERE id = :id", { id });
-    return res.json({ project });
+    await existing.save();
+    return res.json({ project: withId(existing.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -358,10 +298,14 @@ async function updateProject(req, res, next) {
 
 async function deleteProject(req, res, next) {
   try {
-    const id = req.params.id;
-    const existing = await queryOne("SELECT image_url FROM projects WHERE id = :id", { id });
-    await query("DELETE FROM projects WHERE id = :id", { id });
-    if (existing) projectImage.deleteLocalFileIfExists(existing.image_url);
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Project not found." });
+
+    const existing = await Project.findById(oid);
+    if (!existing) return res.status(404).json({ message: "Project not found." });
+
+    await Project.deleteOne({ _id: oid });
+    projectImage.deleteLocalFileIfExists(existing.image_url);
     return res.json({ message: "Project removed." });
   } catch (error) {
     return next(error);
@@ -370,11 +314,8 @@ async function deleteProject(req, res, next) {
 
 async function listMessages(_req, res, next) {
   try {
-    const messages = await query(
-      `SELECT id, name, email, phone, subject, message, status, created_at AS createdAt
-       FROM contact_messages ORDER BY created_at DESC`
-    );
-    return res.json({ messages });
+    const messages = await ContactMessage.find().sort({ created_at: -1 }).lean();
+    return res.json({ messages: messages.map(messageAdmin) });
   } catch (error) {
     return next(error);
   }
@@ -382,10 +323,9 @@ async function listMessages(_req, res, next) {
 
 async function updateMessageStatus(req, res, next) {
   try {
-    await query("UPDATE contact_messages SET status = :status WHERE id = :id", {
-      id: req.params.id,
-      status: req.body.status
-    });
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Message not found." });
+    await ContactMessage.updateOne({ _id: oid }, { status: req.body.status });
     return res.json({ message: "Status updated." });
   } catch (error) {
     return next(error);
@@ -406,12 +346,8 @@ async function uploadMedia(req, res) {
 
 async function listTeamApplications(_req, res, next) {
   try {
-    const applications = await query(
-      `SELECT id, full_name AS fullName, email, phone, address, city, age, gender,
-              message, status, created_at AS createdAt
-       FROM team_applications ORDER BY created_at DESC`
-    );
-    return res.json({ applications });
+    const applications = await TeamApplication.find().sort({ created_at: -1 }).lean();
+    return res.json({ applications: applications.map(teamAppAdmin) });
   } catch (error) {
     return next(error);
   }
@@ -419,10 +355,9 @@ async function listTeamApplications(_req, res, next) {
 
 async function updateTeamApplicationStatus(req, res, next) {
   try {
-    await query("UPDATE team_applications SET status = :status WHERE id = :id", {
-      id: req.params.id,
-      status: req.body.status
-    });
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Application not found." });
+    await TeamApplication.updateOne({ _id: oid }, { status: req.body.status });
     return res.json({ message: "Application status updated." });
   } catch (error) {
     return next(error);
@@ -431,16 +366,8 @@ async function updateTeamApplicationStatus(req, res, next) {
 
 async function listJobApplications(_req, res, next) {
   try {
-    const applications = await query(
-      `SELECT id, job_title AS jobTitle, full_name AS fullName, email, phone, address, city, age, gender,
-              linkedin_url AS linkedinUrl, portfolio_url AS portfolioUrl,
-              current_role AS currentRole, experience_years AS experienceYears,
-              cover_letter AS coverLetter, cv_filename AS cvFilename, cv_url AS cvUrl,
-              additional_doc_url AS additionalDocUrl, additional_info AS additionalInfo,
-              status, created_at AS createdAt
-       FROM job_applications ORDER BY created_at DESC`
-    );
-    return res.json({ applications });
+    const applications = await JobApplication.find().sort({ created_at: -1 }).lean();
+    return res.json({ applications: applications.map(jobAppAdmin) });
   } catch (error) {
     return next(error);
   }
@@ -448,10 +375,9 @@ async function listJobApplications(_req, res, next) {
 
 async function updateJobApplicationStatus(req, res, next) {
   try {
-    await query("UPDATE job_applications SET status = :status WHERE id = :id", {
-      id: req.params.id,
-      status: req.body.status
-    });
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Application not found." });
+    await JobApplication.updateOne({ _id: oid }, { status: req.body.status });
     return res.json({ message: "Job application status updated." });
   } catch (error) {
     return next(error);
@@ -460,8 +386,8 @@ async function updateJobApplicationStatus(req, res, next) {
 
 async function listGallery(_req, res, next) {
   try {
-    const items = await query("SELECT * FROM gallery_items ORDER BY sort_order ASC");
-    return res.json({ items });
+    const items = await GalleryItem.find().sort({ sort_order: 1 }).lean();
+    return res.json({ items: withIdList(items) });
   } catch (error) {
     return next(error);
   }
@@ -490,16 +416,14 @@ async function createGalleryItems(req, res, next) {
             : `Gallery photo ${i + 1}`
           : titleBase || "Gallery photo";
 
-      const result = await query(
-        `INSERT INTO gallery_items (title, caption, image_url, file_hash, category, sort_order)
-         VALUES (:title, :caption, :imageUrl, :fileHash, :category, 0)`,
-        { title: itemTitle, caption, imageUrl, fileHash, category }
-      );
-
-      const row = await queryOne("SELECT * FROM gallery_items WHERE id = :id", {
-        id: result.insertId
+      const row = await GalleryItem.create({
+        title: itemTitle,
+        caption,
+        image_url: imageUrl,
+        file_hash: fileHash,
+        category
       });
-      created.push(row);
+      created.push(withId(row.toObject()));
     }
 
     return res.status(201).json({ items: created, count: created.length });
@@ -510,51 +434,33 @@ async function createGalleryItems(req, res, next) {
 
 async function updateGalleryItem(req, res, next) {
   try {
-    const id = req.params.id;
-    const existing = await queryOne("SELECT * FROM gallery_items WHERE id = :id", { id });
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Gallery item not found." });
+
+    const existing = await GalleryItem.findById(oid);
     if (!existing) {
       return res.status(404).json({ message: "Gallery item not found." });
     }
 
-    const title = req.body.title !== undefined ? String(req.body.title).trim() : null;
-    const caption = req.body.caption !== undefined ? String(req.body.caption).trim() : null;
-    const category =
-      req.body.category !== undefined ? String(req.body.category).trim() || "general" : null;
-    const sortOrder =
-      req.body.sortOrder !== undefined && req.body.sortOrder !== ""
-        ? Number(req.body.sortOrder)
-        : null;
-    const isActive =
-      req.body.isActive === undefined || req.body.isActive === ""
-        ? null
-        : req.body.isActive === "true" || req.body.isActive === true || req.body.isActive === "1"
-          ? 1
-          : 0;
-
-    let imageUrl = null;
-    let fileHash = null;
+    if (req.body.title !== undefined) existing.title = String(req.body.title).trim();
+    if (req.body.caption !== undefined) existing.caption = String(req.body.caption).trim();
+    if (req.body.category !== undefined) {
+      existing.category = String(req.body.category).trim() || "general";
+    }
+    if (req.body.sortOrder !== undefined && req.body.sortOrder !== "") {
+      existing.sort_order = Number(req.body.sortOrder);
+    }
+    const active = parseActive(req.body.isActive);
+    if (active !== null) existing.is_active = active;
 
     if (req.file) {
       deleteLocalFileIfExists(existing.image_url);
-      imageUrl = publicUrlForStoredFile(req.file.filename);
-      fileHash = fileHashFromFilename(req.file.filename);
+      existing.image_url = publicUrlForStoredFile(req.file.filename);
+      existing.file_hash = fileHashFromFilename(req.file.filename);
     }
 
-    await query(
-      `UPDATE gallery_items
-       SET title = COALESCE(:title, title),
-           caption = COALESCE(:caption, caption),
-           image_url = COALESCE(:imageUrl, image_url),
-           file_hash = COALESCE(:fileHash, file_hash),
-           category = COALESCE(:category, category),
-           sort_order = COALESCE(:sortOrder, sort_order),
-           is_active = COALESCE(:isActive, is_active)
-       WHERE id = :id`,
-      { id, title, caption, imageUrl, fileHash, category, sortOrder, isActive }
-    );
-
-    const item = await queryOne("SELECT * FROM gallery_items WHERE id = :id", { id });
-    return res.json({ item });
+    await existing.save();
+    return res.json({ item: withId(existing.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -562,13 +468,15 @@ async function updateGalleryItem(req, res, next) {
 
 async function deleteGalleryItem(req, res, next) {
   try {
-    const id = req.params.id;
-    const existing = await queryOne("SELECT image_url FROM gallery_items WHERE id = :id", { id });
+    const oid = toObjectId(req.params.id);
+    if (!oid) return res.status(404).json({ message: "Gallery item not found." });
+
+    const existing = await GalleryItem.findById(oid);
     if (!existing) {
       return res.status(404).json({ message: "Gallery item not found." });
     }
 
-    await query("DELETE FROM gallery_items WHERE id = :id", { id });
+    await GalleryItem.deleteOne({ _id: oid });
     deleteLocalFileIfExists(existing.image_url);
     return res.json({ message: "Gallery item removed." });
   } catch (error) {

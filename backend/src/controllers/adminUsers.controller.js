@@ -1,13 +1,12 @@
 const bcrypt = require("bcrypt");
-const { query, queryOne } = require("../config/db");
+const { Admin } = require("../models");
+const { isValidId, toObjectId } = require("../utils/mongoId");
 
-const PUBLIC_FIELDS =
-  "id, username, display_name, email, phone, address, is_active, created_at, updated_at";
-
-function toAdminDto(row) {
-  if (!row) return null;
+function toAdminDto(doc) {
+  if (!doc) return null;
+  const row = doc.toObject ? doc.toObject() : doc;
   return {
-    id: row.id,
+    id: String(row._id),
     username: row.username,
     name: row.display_name,
     email: row.email,
@@ -45,9 +44,7 @@ function validateAdminPayload(body, { requirePassword }) {
 
 async function listAdmins(_req, res, next) {
   try {
-    const rows = await query(
-      `SELECT ${PUBLIC_FIELDS} FROM admins ORDER BY created_at DESC`
-    );
+    const rows = await Admin.find().sort({ created_at: -1 });
     return res.json({ admins: rows.map(toAdminDto) });
   } catch (error) {
     return next(error);
@@ -64,39 +61,27 @@ async function createAdmin(req, res, next) {
       return res.status(400).json({ message: errors.join(" ") });
     }
 
-    const existingUser = await queryOne(
-      "SELECT id FROM admins WHERE username = :username LIMIT 1",
-      { username }
-    );
+    const existingUser = await Admin.findOne({ username });
     if (existingUser) {
       return res.status(409).json({ message: "Username already exists." });
     }
 
-    const existingEmail = await queryOne(
-      "SELECT id FROM admins WHERE email = :email LIMIT 1",
-      { email }
-    );
+    const existingEmail = await Admin.findOne({ email });
     if (existingEmail) {
       return res.status(409).json({ message: "Email already in use." });
     }
 
     const passwordHash = await bcrypt.hash(password, 12);
-    const result = await query(
-      `INSERT INTO admins (username, password_hash, display_name, email, phone, address, is_active)
-       VALUES (:username, :password_hash, :display_name, :email, :phone, :address, 1)`,
-      {
-        username,
-        password_hash: passwordHash,
-        display_name: name,
-        email,
-        phone,
-        address
-      }
-    );
-
-    const created = await queryOne(`SELECT ${PUBLIC_FIELDS} FROM admins WHERE id = :id`, {
-      id: result.insertId
+    const created = await Admin.create({
+      username,
+      password_hash: passwordHash,
+      display_name: name,
+      email,
+      phone,
+      address,
+      is_active: 1
     });
+
     return res.status(201).json({ admin: toAdminDto(created) });
   } catch (error) {
     return next(error);
@@ -105,8 +90,12 @@ async function createAdmin(req, res, next) {
 
 async function updateAdmin(req, res, next) {
   try {
-    const id = Number(req.params.id);
-    const target = await queryOne(`SELECT ${PUBLIC_FIELDS} FROM admins WHERE id = :id`, { id });
+    const oid = toObjectId(req.params.id);
+    if (!oid) {
+      return res.status(404).json({ message: "Admin not found." });
+    }
+
+    const target = await Admin.findById(oid);
     if (!target) {
       return res.status(404).json({ message: "Admin not found." });
     }
@@ -119,18 +108,12 @@ async function updateAdmin(req, res, next) {
       return res.status(400).json({ message: errors.join(" ") });
     }
 
-    const usernameTaken = await queryOne(
-      "SELECT id FROM admins WHERE username = :username AND id != :id LIMIT 1",
-      { username, id }
-    );
+    const usernameTaken = await Admin.findOne({ username, _id: { $ne: oid } });
     if (usernameTaken) {
       return res.status(409).json({ message: "Username already exists." });
     }
 
-    const emailTaken = await queryOne(
-      "SELECT id FROM admins WHERE email = :email AND id != :id LIMIT 1",
-      { email, id }
-    );
+    const emailTaken = await Admin.findOne({ email, _id: { $ne: oid } });
     if (emailTaken) {
       return res.status(409).json({ message: "Email already in use." });
     }
@@ -138,71 +121,30 @@ async function updateAdmin(req, res, next) {
     const isActive =
       req.body.isActive === undefined ? target.is_active : req.body.isActive ? 1 : 0;
 
-    if (isActive === 0 && Number(req.admin.id) === id) {
+    if (isActive === 0 && String(req.admin.id) === String(oid)) {
       return res.status(400).json({ message: "You cannot deactivate your own account." });
     }
 
     if (isActive === 0) {
-      const activeCount = await queryOne(
-        "SELECT COUNT(*) AS total FROM admins WHERE is_active = 1 AND id != :id",
-        { id }
-      );
-      if (Number(activeCount.total) < 1) {
+      const activeCount = await Admin.countDocuments({ is_active: 1, _id: { $ne: oid } });
+      if (activeCount < 1) {
         return res.status(400).json({ message: "At least one active admin is required." });
       }
     }
 
-    let passwordHash = null;
+    target.username = username;
+    target.display_name = name;
+    target.email = email;
+    target.phone = phone;
+    target.address = address;
+    target.is_active = isActive;
+
     if (password) {
-      passwordHash = await bcrypt.hash(password, 12);
+      target.password_hash = await bcrypt.hash(password, 12);
     }
 
-    if (passwordHash) {
-      await query(
-        `UPDATE admins
-         SET username = :username,
-             display_name = :display_name,
-             email = :email,
-             phone = :phone,
-             address = :address,
-             is_active = :is_active,
-             password_hash = :password_hash
-         WHERE id = :id`,
-        {
-          id,
-          username,
-          display_name: name,
-          email,
-          phone,
-          address,
-          is_active: isActive,
-          password_hash: passwordHash
-        }
-      );
-    } else {
-      await query(
-        `UPDATE admins
-         SET username = :username,
-             display_name = :display_name,
-             email = :email,
-             phone = :phone,
-             address = :address,
-             is_active = :is_active
-         WHERE id = :id`,
-        {
-          id,
-          username,
-          display_name: name,
-          email,
-          phone,
-          address,
-          is_active: isActive
-        }
-      );
-    }
-
-    const updated = await queryOne(`SELECT ${PUBLIC_FIELDS} FROM admins WHERE id = :id`, { id });
-    return res.json({ admin: toAdminDto(updated) });
+    await target.save();
+    return res.json({ admin: toAdminDto(target) });
   } catch (error) {
     return next(error);
   }
@@ -210,25 +152,27 @@ async function updateAdmin(req, res, next) {
 
 async function deactivateAdmin(req, res, next) {
   try {
-    const id = Number(req.params.id);
-    if (Number(req.admin.id) === id) {
+    const oid = toObjectId(req.params.id);
+    if (!oid) {
+      return res.status(404).json({ message: "Admin not found." });
+    }
+
+    if (String(req.admin.id) === String(oid)) {
       return res.status(400).json({ message: "You cannot deactivate your own account." });
     }
 
-    const target = await queryOne("SELECT id, is_active FROM admins WHERE id = :id", { id });
+    const target = await Admin.findById(oid);
     if (!target) {
       return res.status(404).json({ message: "Admin not found." });
     }
 
-    const activeCount = await queryOne(
-      "SELECT COUNT(*) AS total FROM admins WHERE is_active = 1 AND id != :id",
-      { id }
-    );
-    if (Number(activeCount.total) < 1) {
+    const activeCount = await Admin.countDocuments({ is_active: 1, _id: { $ne: oid } });
+    if (activeCount < 1) {
       return res.status(400).json({ message: "At least one active admin is required." });
     }
 
-    await query("UPDATE admins SET is_active = 0 WHERE id = :id", { id });
+    target.is_active = 0;
+    await target.save();
     return res.json({ message: "Admin deactivated." });
   } catch (error) {
     return next(error);

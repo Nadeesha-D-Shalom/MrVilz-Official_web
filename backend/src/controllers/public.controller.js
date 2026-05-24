@@ -1,55 +1,45 @@
-const { query, queryOne } = require("../config/db");
-
-async function getContentByKey(key) {
-  const row = await queryOne(
-    "SELECT content_json FROM site_content WHERE content_key = :key LIMIT 1",
-    { key }
-  );
-  if (!row) return null;
-  return typeof row.content_json === "string"
-    ? JSON.parse(row.content_json)
-    : row.content_json;
-}
+const {
+  SiteStat,
+  SocialLink,
+  TeamMember,
+  Project,
+  ContactMessage,
+  GalleryItem,
+  TeamApplication,
+  JobApplication
+} = require("../models");
+const { getContentByKey } = require("../utils/content");
+const {
+  statPublic,
+  teamPublic,
+  projectPublic,
+  galleryPublic
+} = require("../utils/serialize");
 
 async function getSiteData(_req, res, next) {
   try {
     const [hero, about, stats, socialLinks, team, projects] = await Promise.all([
       getContentByKey("hero"),
       getContentByKey("about"),
-      query(
-        `SELECT id, stat_key AS statKey, label, value, suffix
-         FROM site_stats WHERE is_active = 1 ORDER BY sort_order ASC`
-      ),
-      query(
-        `SELECT id, platform, label, url, icon
-         FROM social_links WHERE is_active = 1 ORDER BY sort_order ASC`
-      ),
-      query(
-        `SELECT id, name, slug, position, bio, image_url AS imageUrl
-         FROM team_members WHERE is_active = 1 ORDER BY sort_order ASC`
-      ),
-      query(
-        `SELECT id, title, summary, progress, image_url AS imageUrl,
-                visual_layout AS visualLayout, highlights
-         FROM projects WHERE is_active = 1 ORDER BY sort_order ASC`
-      )
+      SiteStat.find({ is_active: 1 }).sort({ sort_order: 1 }).lean(),
+      SocialLink.find({ is_active: 1 }).sort({ sort_order: 1 }).lean(),
+      TeamMember.find({ is_active: 1 }).sort({ sort_order: 1 }).lean(),
+      Project.find({ is_active: 1 }).sort({ sort_order: 1 }).lean()
     ]);
-
-    const normalizedProjects = projects.map((project) => ({
-      ...project,
-      highlights:
-        typeof project.highlights === "string"
-          ? JSON.parse(project.highlights)
-          : project.highlights || []
-    }));
 
     return res.json({
       hero,
       about,
-      stats,
-      socialLinks,
-      team,
-      projects: normalizedProjects
+      stats: stats.map(statPublic),
+      socialLinks: socialLinks.map((l) => ({
+        id: String(l._id),
+        platform: l.platform,
+        label: l.label,
+        url: l.url,
+        icon: l.icon
+      })),
+      team: team.map(teamPublic),
+      projects: projects.map(projectPublic)
     });
   } catch (error) {
     return next(error);
@@ -58,15 +48,11 @@ async function getSiteData(_req, res, next) {
 
 async function getTeamMember(req, res, next) {
   try {
-    const member = await queryOne(
-      `SELECT id, name, slug, position, bio, image_url AS imageUrl
-       FROM team_members WHERE slug = :slug AND is_active = 1 LIMIT 1`,
-      { slug: req.params.slug }
-    );
+    const member = await TeamMember.findOne({ slug: req.params.slug, is_active: 1 }).lean();
     if (!member) {
       return res.status(404).json({ message: "Team member not found." });
     }
-    return res.json({ member });
+    return res.json({ member: teamPublic(member) });
   } catch (error) {
     return next(error);
   }
@@ -80,17 +66,13 @@ async function submitContact(req, res, next) {
       return res.status(400).json({ message: "Name, email, and message are required." });
     }
 
-    await query(
-      `INSERT INTO contact_messages (name, email, phone, subject, message)
-       VALUES (:name, :email, :phone, :subject, :message)`,
-      {
-        name: name.trim(),
-        email: email.trim(),
-        phone: phone?.trim() || null,
-        subject: subject?.trim() || null,
-        message: message.trim()
-      }
-    );
+    await ContactMessage.create({
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone?.trim() || null,
+      subject: subject?.trim() || null,
+      message: message.trim()
+    });
 
     return res.status(201).json({ message: "Thank you! Your message has been received." });
   } catch (error) {
@@ -100,11 +82,10 @@ async function submitContact(req, res, next) {
 
 async function getGallery(_req, res, next) {
   try {
-    const items = await query(
-      `SELECT id, title, caption, image_url AS imageUrl, category
-       FROM gallery_items WHERE is_active = 1 ORDER BY sort_order ASC, id DESC`
-    );
-    return res.json({ items });
+    const items = await GalleryItem.find({ is_active: 1 })
+      .sort({ sort_order: 1, _id: -1 })
+      .lean();
+    return res.json({ items: items.map(galleryPublic) });
   } catch (error) {
     return next(error);
   }
@@ -129,7 +110,7 @@ function validatePersonalFields(body) {
 
   return {
     data: {
-      fullName: fullName.trim(),
+      full_name: fullName.trim(),
       email: email.trim(),
       phone: phone.trim(),
       address: address.trim(),
@@ -149,14 +130,10 @@ async function submitJoinTeam(req, res, next) {
 
     const { message } = req.body;
 
-    await query(
-      `INSERT INTO team_applications (full_name, email, phone, address, city, age, gender, message)
-       VALUES (:fullName, :email, :phone, :address, :city, :age, :gender, :message)`,
-      {
-        ...validation.data,
-        message: message?.trim() || null
-      }
-    );
+    await TeamApplication.create({
+      ...validation.data,
+      message: message?.trim() || null
+    });
 
     return res.status(201).json({
       message: "Thank you! We received your request to join the Mr Vilz team."
@@ -194,31 +171,20 @@ async function submitJobApplication(req, res, next) {
 
     const additionalFile = req.files?.additionalDoc?.[0];
 
-    await query(
-      `INSERT INTO job_applications (
-        job_title, full_name, email, phone, address, city, age, gender,
-        linkedin_url, portfolio_url, current_role, experience_years,
-        cover_letter, cv_filename, cv_url, additional_doc_filename, additional_doc_url, additional_info
-      ) VALUES (
-        :jobTitle, :fullName, :email, :phone, :address, :city, :age, :gender,
-        :linkedinUrl, :portfolioUrl, :currentRole, :experienceYears,
-        :coverLetter, :cvFilename, :cvUrl, :additionalDocFilename, :additionalDocUrl, :additionalInfo
-      )`,
-      {
-        jobTitle: jobTitle.trim(),
-        ...validation.data,
-        linkedinUrl: linkedinUrl?.trim() || null,
-        portfolioUrl: portfolioUrl?.trim() || null,
-        currentRole: currentRole?.trim() || null,
-        experienceYears: experienceYears ? Number(experienceYears) : null,
-        coverLetter: coverLetter?.trim() || null,
-        cvFilename: cvFile.originalname,
-        cvUrl: `/uploads/applications/${cvFile.filename}`,
-        additionalDocFilename: additionalFile?.originalname || null,
-        additionalDocUrl: additionalFile ? `/uploads/applications/${additionalFile.filename}` : null,
-        additionalInfo: additionalInfo?.trim() || null
-      }
-    );
+    await JobApplication.create({
+      job_title: jobTitle.trim(),
+      ...validation.data,
+      linkedin_url: linkedinUrl?.trim() || null,
+      portfolio_url: portfolioUrl?.trim() || null,
+      current_role: currentRole?.trim() || null,
+      experience_years: experienceYears ? Number(experienceYears) : null,
+      cover_letter: coverLetter?.trim() || null,
+      cv_filename: cvFile.originalname,
+      cv_url: `/uploads/applications/${cvFile.filename}`,
+      additional_doc_filename: additionalFile?.originalname || null,
+      additional_doc_url: additionalFile ? `/uploads/applications/${additionalFile.filename}` : null,
+      additional_info: additionalInfo?.trim() || null
+    });
 
     return res.status(201).json({
       message: "Job application submitted successfully. We will review your profile."

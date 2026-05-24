@@ -1,6 +1,6 @@
 # MrVilz Official Web
 
-Modern showcase website and admin panel for **Mr Vilz**, built with React + Vite + Tailwind and Node.js + Express + **MySQL**.
+Modern showcase website and admin panel for **Mr Vilz**, built with React + Vite + Tailwind and Node.js + Express + **MongoDB Atlas**.
 
 **Repository:** https://github.com/Nadeesha-D-Shalom/MrVilz-Official_web.git
 
@@ -32,12 +32,12 @@ MrVilz-Official_web/
 |-------|------------|
 | Frontend | React, Vite, Tailwind CSS, React Router, Axios, Motion |
 | Backend | Node.js, Express, JWT, bcrypt, multer |
-| Database | MySQL (cPanel / AWS RDS ready) |
+| Database | MongoDB Atlas |
 
 ## Prerequisites
 
 - Node.js 20+
-- MySQL 8+ (local XAMPP, WAMP, or cPanel MySQL)
+- MongoDB Atlas cluster (or local MongoDB)
 
 ## Setup
 
@@ -49,7 +49,7 @@ npm install
 
 ### 2. Configure environment
 
-Copy the example env file and set your MySQL credentials:
+Copy the example env file and set your MongoDB connection string:
 
 ```bash
 copy backend\.env.example backend\.env
@@ -57,9 +57,19 @@ copy backend\.env.example backend\.env
 
 Edit `backend/.env`:
 
-- `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME` (default database: `mrvilzdb`)
+- `MONGODB_URI` — Atlas connection string (never commit real credentials)
+- `MONGODB_DB_NAME` — database name (default: `mrvilz`)
 - `JWT_SECRET` (use a long random string in production)
 - `ADMIN_USERNAME` / `ADMIN_PASSWORD` (used when creating the first admin)
+
+**Import existing MySQL data (optional):**
+
+```bash
+cd backend
+npm run db:migrate
+```
+
+If MySQL is not configured, this seeds default site content into MongoDB. Use `npm run db:migrate -- --force` to wipe and re-import.
 
 ### 3. Start development
 
@@ -71,7 +81,11 @@ npm run dev
 - **API:** http://localhost:5000/api/health
 - **Admin login:** http://localhost:5173/admin/login
 
-On first start, the backend automatically creates the database, tables, and default content if MySQL is reachable.
+On first start, the backend connects to MongoDB and seeds default content if collections are empty.
+
+### Deploy on Render
+
+See `render.yaml` for a sample Blueprint. Set `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN`, and admin credentials in the Render dashboard. Run `npm run db:migrate` once locally (or via a one-off job) to populate Atlas before going live.
 
 Default admin (from `.env`):
 
@@ -81,9 +95,11 @@ Default admin (from `.env`):
 ### 4. Manual database setup (optional)
 
 ```bash
-mysql -u root -p < backend/database/schema.sql
-npm run db:setup --workspace backend
+cd backend
+npm run db:seed
 ```
+
+To import from an old MySQL database, uncomment `DB_*` vars in `.env` and run `npm run db:migrate -- --force`.
 
 ## Assets to add
 
@@ -118,8 +134,8 @@ The backend serves the built React app from `frontend/dist` when present.
 
 ## Deployment notes
 
-- **cPanel:** Use Node.js app + MySQL database; build frontend and point domain to backend.
-- **AWS later:** RDS for MySQL, S3 for uploads, EC2/Elastic Beanstalk for API.
+- **Render:** Use `render.yaml` — API web service + static frontend. Set `MONGODB_URI` and allow Render IPs in MongoDB Atlas Network Access.
+- **Uploads:** On Render, use a persistent disk or external storage (S3) for `backend/uploads/` if you need CVs and gallery files to survive redeploys.
 
 ## Color palette (from Mr Vilz branding)
 

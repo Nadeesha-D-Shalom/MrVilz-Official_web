@@ -1,46 +1,19 @@
-const mysql = require("mysql2/promise");
+const mongoose = require("mongoose");
 const env = require("./env");
 
-let pool = null;
+mongoose.set("strictQuery", true);
 
-/** mysql2 rejects `undefined` in named placeholders — use SQL NULL instead */
-function sanitizeParams(params) {
-  if (!params || typeof params !== "object") return params;
-  const out = {};
-  for (const [key, value] of Object.entries(params)) {
-    out[key] = value === undefined ? null : value;
+async function connectDb() {
+  if (!env.mongodb.uri) {
+    throw new Error("MONGODB_URI is not set. Add it to backend/.env");
   }
-  return out;
-}
-
-function getPool() {
-  if (!pool) {
-    pool = mysql.createPool({
-      host: env.db.host,
-      port: env.db.port,
-      user: env.db.user,
-      password: env.db.password,
-      database: env.db.database,
-      waitForConnections: true,
-      connectionLimit: 10,
-      namedPlaceholders: true
-    });
+  if (mongoose.connection.readyState === 1) {
+    return mongoose.connection;
   }
-  return pool;
+  await mongoose.connect(env.mongodb.uri, {
+    dbName: env.mongodb.dbName
+  });
+  return mongoose.connection;
 }
 
-async function query(sql, params = {}) {
-  const [result] = await getPool().execute(sql, sanitizeParams(params));
-  return result;
-}
-
-async function queryOne(sql, params = {}) {
-  const rows = await query(sql, params);
-  return Array.isArray(rows) ? rows[0] || null : rows;
-}
-
-function initPool() {
-  return getPool();
-}
-
-module.exports = { getPool, initPool, query, queryOne };
+module.exports = { connectDb, mongoose };
