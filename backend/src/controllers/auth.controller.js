@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const { Admin } = require("../models");
 const env = require("../config/env");
 const { toAdminDto } = require("../utils/adminDto");
+const { resolveAdminRole } = require("../utils/adminRoles");
 
 async function login(req, res, next) {
   try {
@@ -23,14 +24,21 @@ async function login(req, res, next) {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
+    const resolvedRole = resolveAdminRole(admin);
+    if (admin.role !== resolvedRole) {
+      Admin.updateOne({ _id: admin._id }, { $set: { role: resolvedRole } }).catch(() => {});
+    }
+
     const id = String(admin._id);
-    const token = jwt.sign({ id, username: admin.username }, env.jwt.secret, {
-      expiresIn: env.jwt.expiresIn
-    });
+    const token = jwt.sign(
+      { id, username: admin.username, role: resolvedRole },
+      env.jwt.secret,
+      { expiresIn: env.jwt.expiresIn }
+    );
 
     return res.json({
       token,
-      admin: toAdminDto(admin)
+      admin: toAdminDto({ ...admin, role: resolvedRole })
     });
   } catch (error) {
     return next(error);
@@ -43,7 +51,13 @@ async function me(req, res, next) {
     if (!doc || doc.is_active === 0) {
       return res.status(401).json({ message: "Account inactive or not found." });
     }
-    return res.json({ admin: toAdminDto(doc) });
+
+    const resolvedRole = resolveAdminRole(doc);
+    if (doc.role !== resolvedRole) {
+      Admin.updateOne({ _id: doc._id }, { $set: { role: resolvedRole } }).catch(() => {});
+    }
+
+    return res.json({ admin: toAdminDto({ ...doc, role: resolvedRole }) });
   } catch (error) {
     return next(error);
   }

@@ -1,76 +1,62 @@
-import { useEffect, useState } from "react";
-import { User, Mail, Phone, MapPin, Shield } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Mail, MapPin, Pencil, Phone, Shield, User } from "lucide-react";
 import api from "../../api/client";
 import { useAuth } from "../../context/AuthContext";
-import { ROLE_LABELS } from "../../utils/adminRole";
-import {
-  AdminPageShell,
-  AdminPanel,
-  AdminField,
-  AdminInput,
-  AdminTextarea,
-  AdminButton
-} from "../../components/admin/AdminUi";
-import { AdminPasswordInput } from "../../components/admin/PasswordInput";
+import { effectiveRole, roleLabel } from "../../utils/adminRole";
+import { AdminPageShell, AdminPanel, AdminButton } from "../../components/admin/AdminUi";
+import ProfileEditDialog from "../../components/admin/ProfileEditDialog";
+
+function DetailRow({ icon: Icon, label, value }) {
+  return (
+    <div className="flex gap-3 rounded-xl border border-slate-100 bg-slate-50/80 px-4 py-3">
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-slate-500 shadow-sm">
+        <Icon size={16} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{label}</p>
+        <p className="mt-0.5 break-words text-sm font-semibold text-brand-ink">{value || "—"}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const { admin, updateAdmin } = useAuth();
-  const [form, setForm] = useState({
-    name: "",
-    username: "",
-    email: "",
-    phone: "",
-    address: "",
-    password: ""
-  });
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [saving, setSaving] = useState(false);
+  const [profile, setProfile] = useState(null);
+  const [loadError, setLoadError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [success, setSuccess] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
-    async function loadProfile() {
-      setLoading(true);
-      try {
-        const { data } = await api.get("/auth/me");
-        if (!cancelled && data.admin) {
-          updateAdmin(data.admin);
-          setForm({
-            name: data.admin.name || "",
-            username: data.admin.username || "",
-            email: data.admin.email || "",
-            phone: data.admin.phone || "",
-            address: data.admin.address || "",
-            password: ""
-          });
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err.response?.data?.message || "Could not load your profile.");
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
+  const loadProfile = useCallback(async () => {
+    setLoading(true);
+    setLoadError("");
+    try {
+      const { data } = await api.get("/auth/me");
+      if (data?.admin) {
+        setProfile(data.admin);
+        updateAdmin(data.admin);
       }
+    } catch (err) {
+      setLoadError(err.response?.data?.message || "Could not load your profile.");
+    } finally {
+      setLoading(false);
     }
-    loadProfile();
-    return () => {
-      cancelled = true;
-    };
   }, [updateAdmin]);
 
-  function updateField(key, value) {
-    setForm((f) => ({ ...f, [key]: value }));
-    setError("");
-    setSuccess("");
-  }
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
-  async function handleSubmit(event) {
-    event.preventDefault();
-    if (!admin?.id) return;
+  const display = profile || admin;
+  const role = effectiveRole(display);
+
+  async function handleSave(form) {
+    if (!display?.id) return;
     setSaving(true);
-    setError("");
-    setSuccess("");
+    setEditError("");
     try {
       const payload = {
         name: form.name,
@@ -82,122 +68,80 @@ export default function ProfilePage() {
       if (form.password.trim()) {
         payload.password = form.password;
       }
-      const { data } = await api.put(`/admin/users/${admin.id}`, payload);
+      const { data } = await api.put(`/admin/users/${display.id}`, payload);
+      setProfile(data.admin);
       updateAdmin(data.admin);
-      setForm((f) => ({ ...f, password: "" }));
+      setEditOpen(false);
       setSuccess("Profile updated successfully.");
     } catch (err) {
-      setError(err.response?.data?.message || "Could not update profile.");
+      setEditError(err.response?.data?.message || "Could not update profile.");
     } finally {
       setSaving(false);
     }
   }
 
   return (
-    <AdminPageShell description="View and update your account details and password.">
-      {error ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
-          {error}
-        </p>
-      ) : null}
+    <AdminPageShell
+      description="Your account details for the Mr Vilz admin panel."
+      loadError={loadError}
+      action={
+        <AdminButton icon={Pencil} onClick={() => setEditOpen(true)} disabled={loading || !display}>
+          Edit profile
+        </AdminButton>
+      }
+    >
       {success ? (
         <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-800">
           {success}
         </p>
       ) : null}
 
-      <AdminPanel
-        title="My profile"
-        description="These details are used for your admin account."
-        icon={User}
-      >
+      <AdminPanel title="My details" description="Read-only view of your account." icon={User}>
         {loading ? (
           <p className="text-sm text-slate-500">Loading profile…</p>
+        ) : display ? (
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-3 rounded-xl border border-violet-100 bg-violet-50/80 px-4 py-3">
+              <Shield size={18} className="text-violet-600" />
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wide text-violet-600/80">
+                  Account role
+                </p>
+                <p className="text-sm font-bold text-violet-900">{roleLabel(display)}</p>
+                <p className="text-xs text-violet-700/80">
+                  {role === "super_admin"
+                    ? "You can manage other admins and all site content."
+                    : "You can manage site content. Admin management is for super admins only."}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <DetailRow icon={User} label="Full name" value={display.name} />
+              <DetailRow icon={User} label="Username" value={`@${display.username}`} />
+              <DetailRow icon={Mail} label="Email" value={display.email} />
+              <DetailRow icon={Phone} label="Phone" value={display.phone} />
+              <div className="sm:col-span-2">
+                <DetailRow icon={MapPin} label="Address" value={display.address} />
+              </div>
+            </div>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="flex flex-wrap items-center gap-2 rounded-xl bg-slate-50 px-4 py-3">
-              <Shield size={16} className="text-slate-400" />
-              <span className="text-sm font-semibold text-slate-600">Role</span>
-              <span className="rounded-full bg-violet-100 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-violet-800">
-                {ROLE_LABELS[admin?.role] || "Admin"}
-              </span>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <AdminField label="Full name" required>
-                <AdminInput
-                  required
-                  value={form.name}
-                  onChange={(e) => updateField("name", e.target.value)}
-                />
-              </AdminField>
-              <AdminField label="Username" required>
-                <AdminInput
-                  required
-                  value={form.username}
-                  onChange={(e) => updateField("username", e.target.value)}
-                />
-              </AdminField>
-              <AdminField label="Email" required>
-                <AdminInput
-                  required
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => updateField("email", e.target.value)}
-                />
-              </AdminField>
-              <AdminField label="Phone" required>
-                <AdminInput
-                  required
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) => updateField("phone", e.target.value)}
-                />
-              </AdminField>
-              <AdminField label="Address" required className="sm:col-span-2">
-                <AdminTextarea
-                  required
-                  rows={2}
-                  value={form.address}
-                  onChange={(e) => updateField("address", e.target.value)}
-                />
-              </AdminField>
-              <AdminField
-                label="New password"
-                hint="Leave blank to keep your current password"
-                className="sm:col-span-2"
-              >
-                <AdminPasswordInput
-                  autoComplete="new-password"
-                  value={form.password}
-                  onChange={(e) => updateField("password", e.target.value)}
-                />
-              </AdminField>
-            </div>
-
-            <div className="flex flex-wrap gap-2 border-t border-slate-100 pt-4">
-              <AdminButton type="submit" loading={saving}>
-                Save profile
-              </AdminButton>
-            </div>
-
-            <ul className="grid gap-2 text-sm text-slate-600 sm:grid-cols-2">
-              <li className="inline-flex items-center gap-2">
-                <Mail size={14} className="text-slate-400" />
-                {form.email || "—"}
-              </li>
-              <li className="inline-flex items-center gap-2">
-                <Phone size={14} className="text-slate-400" />
-                {form.phone || "—"}
-              </li>
-              <li className="inline-flex items-start gap-2 sm:col-span-2">
-                <MapPin size={14} className="mt-0.5 shrink-0 text-slate-400" />
-                {form.address || "—"}
-              </li>
-            </ul>
-          </form>
+          <p className="text-sm text-slate-500">No profile data available.</p>
         )}
       </AdminPanel>
+
+      <ProfileEditDialog
+        open={editOpen}
+        profile={display}
+        onClose={() => {
+          setEditOpen(false);
+          setEditError("");
+        }}
+        onSave={handleSave}
+        saving={saving}
+        error={editError}
+      />
     </AdminPageShell>
   );
 }

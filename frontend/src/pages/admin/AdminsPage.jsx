@@ -12,7 +12,7 @@ import {
 import api from "../../api/client";
 import { loadAdminList } from "../../utils/adminDataLoad";
 import { useAuth } from "../../context/AuthContext";
-import { isSuperAdmin, ROLE_LABELS } from "../../utils/adminRole";
+import { isSuperAdmin, ROLE_LABELS, effectiveRole } from "../../utils/adminRole";
 import {
   AdminPageShell,
   AdminPanel,
@@ -349,7 +349,7 @@ export default function AdminsPage() {
                                       : "bg-sky-100 text-sky-800"
                                   }`}
                                 >
-                                  {ROLE_LABELS[admin.role] || "Admin"}
+                                  {ROLE_LABELS[effectiveRole(admin)] || "Admin"}
                                 </span>
                                 <span
                                   className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide ${

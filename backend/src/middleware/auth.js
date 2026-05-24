@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const env = require("../config/env");
 const { Admin } = require("../models");
-const { isSuperAdminRole } = require("../utils/adminRoles");
+const { isSuperAdminRole, resolveAdminRole } = require("../utils/adminRoles");
 
 function authRequired(req, res, next) {
   const header = req.headers.authorization || "";
@@ -25,7 +25,7 @@ async function loadAdminRole(req, res, next) {
     if (!doc || doc.is_active === 0) {
       return res.status(401).json({ message: "Account inactive or not found." });
     }
-    req.admin.role = doc.role || "admin";
+    req.admin.role = resolveAdminRole(doc);
     req.admin.username = doc.username;
     return next();
   } catch (error) {

@@ -75,6 +75,25 @@
     animation: hero-fade 0.7s ease forwards;
   }
 
+  @keyframes hero-cursor-blink {
+    0%,
+    49% {
+      opacity: 1;
+    }
+    50%,
+    100% {
+      opacity: 0.15;
+    }
+  }
+
+  .hero-typewriter-cursor {
+    animation: hero-cursor-blink 1s ease-in-out infinite;
+  }
+
+  .hero-typewriter-cursor-done {
+    opacity: 0;
+  }
+
   .scroll-hint {
     animation: scroll-bob 2s ease-in-out infinite;
   }

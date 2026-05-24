@@ -10,7 +10,24 @@ const {
 } = require("../models");
 const { getContentByKey, upsertContent } = require("../utils/content");
 const { toObjectId } = require("../utils/mongoId");
-const { withId, withIdList, statAdmin, messageAdmin, teamAppAdmin, jobAppAdmin } = require("../utils/serialize");
+const {
+  withId,
+  withIdList,
+  statAdmin,
+  messageAdmin,
+  teamAppAdmin,
+  jobAppAdmin,
+  teamAdmin
+} = require("../utils/serialize");
+
+const CORE_LEADERSHIP_SLUGS = ["nadeesha", "chamidu", "pabodha", "nethmina"];
+
+async function ensureCoreLeadershipFlags() {
+  await TeamMember.updateMany(
+    { slug: { $in: CORE_LEADERSHIP_SLUGS } },
+    { $set: { is_leadership: 1 } }
+  );
+}
 const {
   publicUrlForStoredFile,
   fileHashFromFilename,
@@ -135,8 +152,9 @@ async function createSocialLink(req, res, next) {
 
 async function listTeam(_req, res, next) {
   try {
+    await ensureCoreLeadershipFlags();
     const team = await TeamMember.find().sort({ sort_order: 1 }).lean();
-    return res.json({ team: withIdList(team) });
+    return res.json({ team: team.map(teamAdmin) });
   } catch (error) {
     return next(error);
   }
@@ -174,7 +192,7 @@ async function createTeamMember(req, res, next) {
       is_leadership: isLeadership
     });
 
-    return res.status(201).json({ member: withId(member.toObject()) });
+    return res.status(201).json({ member: teamAdmin(member.toObject()) });
   } catch (error) {
     return next(error);
   }
@@ -219,7 +237,7 @@ async function updateTeamMember(req, res, next) {
     }
 
     await existing.save();
-    return res.json({ member: withId(existing.toObject()) });
+    return res.json({ member: teamAdmin(existing.toObject()) });
   } catch (error) {
     return next(error);
   }

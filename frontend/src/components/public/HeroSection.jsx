@@ -1,5 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import ScrollLink from "../navigation/ScrollLink";
+import HeroTypewriter from "./HeroTypewriter";
 
 function HeroMedia({ hero }) {
   if (hero.mediaType === "video" && hero.mediaUrl) {
@@ -106,9 +107,10 @@ export default function HeroSection({ hero }) {
           </h1>
 
           {hero.subtitle ? (
-            <p className="mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:mt-6 sm:text-lg sm:leading-relaxed">
-              {hero.subtitle}
-            </p>
+            <HeroTypewriter
+              text={hero.subtitle}
+              className="mt-5 min-h-[3.25rem] max-w-xl text-base leading-relaxed text-white/85 sm:mt-6 sm:min-h-[1.75rem] sm:text-lg sm:leading-relaxed"
+            />
           ) : null}
 
           <div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center">

@@ -1,4 +1,4 @@
-const { ROLES } = require("./adminRoles");
+const { resolveAdminRole } = require("./adminRoles");
 
 function toAdminDto(doc) {
   if (!doc) return null;
@@ -10,7 +10,7 @@ function toAdminDto(doc) {
     email: row.email,
     phone: row.phone,
     address: row.address,
-    role: row.role || ROLES.ADMIN,
+    role: resolveAdminRole(row),
     isActive: row.is_active === undefined ? true : Boolean(row.is_active),
     createdAt: row.created_at,
     updatedAt: row.updated_at

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronDown, ExternalLink, LogOut, User } from "lucide-react";
+import { roleLabel } from "../../utils/adminRole";
 
 export default function AdminProfileMenu({ admin, onLogout }) {
   const navigate = useNavigate();
@@ -60,6 +61,9 @@ export default function AdminProfileMenu({ admin, onLogout }) {
           <div className="border-b border-slate-100 px-4 py-3">
             <p className="truncate text-sm font-bold text-brand-ink">{displayName}</p>
             <p className="truncate text-xs text-slate-500">@{admin?.username}</p>
+            <p className="mt-1 inline-block rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-bold uppercase text-violet-800">
+              {roleLabel(admin)}
+            </p>
           </div>
           <button
             type="button"

@@ -59,7 +59,7 @@ export const ADMIN_NAV_GROUPS = [
     collapsible: true,
     items: [
       { to: "/admin/admins", label: "Manage admins", icon: Shield, superAdminOnly: true },
-      { to: "/admin/profile", label: "My profile", icon: Users, superAdminOnly: false }
+      { to: "/admin/profile", label: "My profile", icon: Users }
     ]
   }
 ];

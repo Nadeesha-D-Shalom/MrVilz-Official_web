@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Crown, User, Users } from "lucide-react";
+import { ChevronDown, Crown, User, Users } from "lucide-react";
 import api from "../../api/client";
 import { loadAdminList } from "../../utils/adminDataLoad";
 import AdminImagePicker, { buildTeamFormData } from "../../components/admin/AdminImagePicker";
@@ -18,6 +18,8 @@ import {
   useRowSaveState
 } from "../../components/admin/AdminUi";
 
+const CORE_LEADERSHIP_SLUGS = new Set(["nadeesha", "chamidu", "pabodha", "nethmina"]);
+
 const EMPTY_MEMBER = {
   name: "",
   position: "",
@@ -26,14 +28,21 @@ const EMPTY_MEMBER = {
 };
 
 function isLeadershipMember(member) {
-  return member.is_leadership === 1 || member.isLeadership === true;
+  const slug = String(member.slug || "").toLowerCase();
+  if (CORE_LEADERSHIP_SLUGS.has(slug)) return true;
+  return (
+    member.is_leadership === 1 ||
+    member.is_leadership === "1" ||
+    member.isLeadership === true ||
+    member.isLeadership === 1
+  );
 }
 
 function memberShortText(member) {
   return member.short_description || member.shortDescription || "";
 }
 
-function TeamMemberEditor({
+function TeamMemberDetails({
   member,
   onChange,
   pendingImages,
@@ -47,17 +56,13 @@ function TeamMemberEditor({
   const leadership = isLeadershipMember(member);
 
   return (
-    <AdminPanel
-      key={member.id}
-      title={member.name || "Team member"}
-      description={leadership ? "Core leadership (homepage)" : "Extended team (Team Members page)"}
-    >
+    <div className="border-t border-slate-100 bg-slate-50/50 px-4 py-4 sm:px-5">
       <div className="flex flex-col gap-4 lg:flex-row">
         {member.image_url ? (
-          <img src={member.image_url} alt="" className="h-24 w-24 shrink-0 rounded-xl object-cover" />
+          <img src={member.image_url} alt="" className="h-20 w-20 shrink-0 rounded-xl object-cover" />
         ) : (
-          <span className="flex h-24 w-24 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-400">
-            <Users size={32} />
+          <span className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-white text-slate-400">
+            <Users size={28} />
           </span>
         )}
         <div className="min-w-0 flex-1 space-y-4">
@@ -107,7 +112,7 @@ function TeamMemberEditor({
               onFileSelect={(file) => setPendingImages((p) => ({ ...p, [member.id]: file }))}
             />
           </div>
-          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 pt-4">
             <AdminSaveNotice status={saveStatus} message={saveError} />
             <div className="flex flex-wrap gap-2">
               <AdminDeleteButton onClick={onDelete} />
@@ -118,7 +123,91 @@ function TeamMemberEditor({
           </div>
         </div>
       </div>
-    </AdminPanel>
+    </div>
+  );
+}
+
+function TeamMemberRow({
+  member,
+  expanded,
+  onToggle,
+  onChange,
+  pendingImages,
+  setPendingImages,
+  onSave,
+  onDelete,
+  saveStatus,
+  saveError,
+  saving
+}) {
+  return (
+    <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex w-full items-center justify-between gap-3 px-4 py-3.5 text-left transition hover:bg-slate-50"
+        aria-expanded={expanded}
+      >
+        <span className="truncate font-display text-base font-bold text-brand-ink">
+          {member.name || "Unnamed member"}
+        </span>
+        <ChevronDown
+          size={18}
+          className={`shrink-0 text-slate-400 transition-transform duration-200 ${
+            expanded ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+      {expanded ? (
+        <TeamMemberDetails
+          member={member}
+          onChange={onChange}
+          pendingImages={pendingImages}
+          setPendingImages={setPendingImages}
+          onSave={onSave}
+          onDelete={onDelete}
+          saveStatus={saveStatus}
+          saveError={saveError}
+          saving={saving}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function TeamMemberList({
+  members,
+  expandedId,
+  setExpandedId,
+  updateMember,
+  pendingImages,
+  setPendingImages,
+  saveMember,
+  removeMember,
+  states,
+  errors
+}) {
+  return (
+    <div className="space-y-2">
+      {members.map((member) => (
+        <TeamMemberRow
+          key={member.id}
+          member={member}
+          expanded={expandedId === member.id}
+          onToggle={() =>
+            setExpandedId((current) => (current === member.id ? null : member.id))
+          }
+          onChange={updateMember}
+          pendingImages={pendingImages}
+          setPendingImages={setPendingImages}
+          onSave={() => saveMember(member)}
+          onDelete={() => removeMember(member.id)}
+          saveStatus={states[member.id]}
+          saveError={errors[member.id]}
+          saving={states[member.id] === "saving"}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -130,10 +219,18 @@ export default function TeamPage() {
   const [pendingImages, setPendingImages] = useState({});
   const [adding, setAdding] = useState(false);
   const [loadError, setLoadError] = useState("");
+  const [expandedLeadershipId, setExpandedLeadershipId] = useState(null);
+  const [expandedExtendedId, setExpandedExtendedId] = useState(null);
   const { states, errors, savingAll, anySaving, runSave, runSaveAll } = useRowSaveState();
 
-  const leadership = useMemo(() => team.filter(isLeadershipMember), [team]);
-  const extended = useMemo(() => team.filter((m) => !isLeadershipMember(m)), [team]);
+  const leadership = useMemo(
+    () => team.filter(isLeadershipMember).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+    [team]
+  );
+  const extended = useMemo(
+    () => team.filter((m) => !isLeadershipMember(m)).sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0)),
+    [team]
+  );
 
   function load() {
     loadAdminList(api.get("/admin/team"), (d) => d.team, setTeam, setLoadError);
@@ -149,18 +246,19 @@ export default function TeamPage() {
 
   async function persistMember(member) {
     const imageFile = pendingImages[member.id];
+    const leadershipFlag = isLeadershipMember(member);
     const payload = {
       name: member.name,
       position: member.position,
       bio: member.bio,
       shortDescription: memberShortText(member),
-      isLeadership: isLeadershipMember(member),
+      isLeadership: leadershipFlag,
       imageUrl: member.image_url || member.imageUrl,
       sortOrder: member.sort_order ?? member.sortOrder
     };
 
     if (imageFile) {
-      const fd = buildTeamFormData({ ...member, ...payload, isLeadership: payload.isLeadership }, imageFile);
+      const fd = buildTeamFormData({ ...member, ...payload, isLeadership: leadershipFlag }, imageFile);
       const { data } = await api.put(`/admin/team/${member.id}`, fd, {
         headers: { "Content-Type": "multipart/form-data" }
       });
@@ -173,7 +271,10 @@ export default function TeamPage() {
         return next;
       });
     } else {
-      await api.put(`/admin/team/${member.id}`, payload);
+      const { data } = await api.put(`/admin/team/${member.id}`, payload);
+      if (data.member) {
+        setTeam((rows) => rows.map((r) => (r.id === member.id ? data.member : r)));
+      }
     }
   }
 
@@ -212,12 +313,14 @@ export default function TeamPage() {
   async function removeMember(id) {
     if (!confirm("Remove this team member?")) return;
     await api.delete(`/admin/team/${id}`);
+    if (expandedLeadershipId === id) setExpandedLeadershipId(null);
+    if (expandedExtendedId === id) setExpandedExtendedId(null);
     load();
   }
 
   return (
     <AdminPageShell
-      description="Core leadership appears on the homepage. Add extended members for the Team Members page (name, designation, short description)."
+      description="Core leadership appears on the homepage. Add extended members for the Team Members page."
       loadError={loadError}
       action={
         <div className="flex flex-wrap gap-2">
@@ -276,64 +379,59 @@ export default function TeamPage() {
       ) : null}
 
       <div className="mt-6">
-      <AdminPanel title="Core leadership" icon={Crown}>
-        <p className="mb-4 text-sm text-slate-600">
-          These four profiles are shown on the homepage. Edit photos and roles here; they are not
-          listed on the Team Members page.
-        </p>
-        {leadership.length === 0 ? (
-          <AdminEmpty icon={Crown} title="No leadership profiles" description="Seed or add leadership members." />
-        ) : (
-          <div className="space-y-4">
-            {leadership.map((member) => (
-              <TeamMemberEditor
-                key={member.id}
-                member={member}
-                onChange={updateMember}
-                pendingImages={pendingImages}
-                setPendingImages={setPendingImages}
-                onSave={() => saveMember(member)}
-                onDelete={() => removeMember(member.id)}
-                saveStatus={states[member.id]}
-                saveError={errors[member.id]}
-                saving={states[member.id] === "saving"}
-              />
-            ))}
-          </div>
-        )}
-      </AdminPanel>
+        <AdminPanel title="Core leadership" icon={Crown}>
+          <p className="mb-4 text-sm text-slate-600">
+            These four profiles are shown on the homepage. Click a name to expand and edit.
+          </p>
+          {leadership.length === 0 ? (
+            <AdminEmpty
+              icon={Crown}
+              title="No leadership profiles"
+              description="Refresh the page — the four core members are assigned automatically."
+            />
+          ) : (
+            <TeamMemberList
+              members={leadership}
+              expandedId={expandedLeadershipId}
+              setExpandedId={setExpandedLeadershipId}
+              updateMember={updateMember}
+              pendingImages={pendingImages}
+              setPendingImages={setPendingImages}
+              saveMember={saveMember}
+              removeMember={removeMember}
+              states={states}
+              errors={errors}
+            />
+          )}
+        </AdminPanel>
       </div>
 
       <div className="mt-6">
-      <AdminPanel title="Extended team members" icon={Users}>
-        <p className="mb-4 text-sm text-slate-600">
-          Shown on the Team Members page only. Use a short description for each card.
-        </p>
-        {extended.length === 0 ? (
-          <AdminEmpty
-            icon={Users}
-            title="No extended members yet"
-            description='Click "Add team member" above to publish someone on the Team Members page.'
-          />
-        ) : (
-          <div className="space-y-4">
-            {extended.map((member) => (
-              <TeamMemberEditor
-                key={member.id}
-                member={member}
-                onChange={updateMember}
-                pendingImages={pendingImages}
-                setPendingImages={setPendingImages}
-                onSave={() => saveMember(member)}
-                onDelete={() => removeMember(member.id)}
-                saveStatus={states[member.id]}
-                saveError={errors[member.id]}
-                saving={states[member.id] === "saving"}
-              />
-            ))}
-          </div>
-        )}
-      </AdminPanel>
+        <AdminPanel title="Extended team members" icon={Users}>
+          <p className="mb-4 text-sm text-slate-600">
+            Shown on the Team Members page only. Click a name to expand and edit.
+          </p>
+          {extended.length === 0 ? (
+            <AdminEmpty
+              icon={Users}
+              title="No extended members yet"
+              description='Use "Add team member" above to add someone to the Team Members page.'
+            />
+          ) : (
+            <TeamMemberList
+              members={extended}
+              expandedId={expandedExtendedId}
+              setExpandedId={setExpandedExtendedId}
+              updateMember={updateMember}
+              pendingImages={pendingImages}
+              setPendingImages={setPendingImages}
+              saveMember={saveMember}
+              removeMember={removeMember}
+              states={states}
+              errors={errors}
+            />
+          )}
+        </AdminPanel>
       </div>
     </AdminPageShell>
   );

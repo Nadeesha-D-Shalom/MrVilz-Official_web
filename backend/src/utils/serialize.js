@@ -70,6 +70,28 @@ function teamPublic(doc) {
   };
 }
 
+function teamAdmin(doc) {
+  const o = withId(doc);
+  if (!o) return null;
+  const leadership = o.is_leadership === 1;
+  return {
+    id: o.id,
+    name: o.name,
+    slug: o.slug,
+    position: o.position,
+    bio: o.bio,
+    short_description: o.short_description || null,
+    shortDescription: o.short_description || null,
+    image_url: o.image_url,
+    imageUrl: o.image_url,
+    sort_order: o.sort_order,
+    sortOrder: o.sort_order,
+    is_active: o.is_active,
+    is_leadership: o.is_leadership ?? 0,
+    isLeadership: leadership
+  };
+}
+
 function projectPublic(doc) {
   const o = withId(doc);
   if (!o) return null;
@@ -199,6 +221,7 @@ module.exports = {
   statAdmin,
   socialPublic,
   teamPublic,
+  teamAdmin,
   projectPublic,
   careerPostPublic,
   careerPostAdmin,

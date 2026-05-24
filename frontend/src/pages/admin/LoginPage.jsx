@@ -71,8 +71,11 @@ export default function LoginPage() {
         </Link>
 
         <div className="relative z-10 py-10 text-center">
-          <Logo className="mx-auto h-20 w-auto max-w-[160px] object-contain drop-shadow-lg" />
-          <p className="mt-6 font-display text-3xl font-extrabold">
+          <Logo
+            variant="onDark"
+            className="mx-auto h-28 w-auto max-w-[min(100%,260px)] object-contain sm:h-32 sm:max-w-[300px]"
+          />
+          <p className="mt-8 font-display text-3xl font-extrabold">
             Mr <span className="text-brand-red">Vilz</span> Admin
           </p>
           <p className="mt-2 text-sm text-white/65">Nature · Media · Conservation</p>
