@@ -43,8 +43,8 @@ const defaultTeam = [
   {
     name: "Nadeesha D Shalom",
     slug: "nadeesha",
-    position: "Founder & Presenter",
-    bio: "Software Engineering undergraduate and Founder of MrVilz — building digital solutions, cinematic travel content, and nature storytelling through modern technology.",
+    position: "Founder, Presenter & Full-Stack Developer",
+    bio: "Founder of Mr Vilz and BSc (Hons) Software Engineering undergraduate at SLIIT — full-stack development, AI engineering, travel media, and nature storytelling for conservation campaigns across Sri Lanka.",
     image_url: "/images/nadeesha1.JPG",
     sort_order: 1,
     is_leadership: 1
@@ -53,7 +53,7 @@ const defaultTeam = [
     name: "Chamidu",
     slug: "chamidu",
     position: "Co-Founder & Head of Media Production",
-    bio: "Videography and photography for MrVilz — field shoots, campaigns, and visual storytelling.",
+    bio: "Co-Founder and Head of Media Production at Mr Vilz — videography and photography for beach cleanups, events, field work, and conservation storytelling across Sri Lanka.",
     image_url: "/images/chamidu.jpeg",
     sort_order: 2,
     is_leadership: 1
@@ -62,7 +62,7 @@ const defaultTeam = [
     name: "Pabodha Nuwangi",
     slug: "pabodha",
     position: "Creative Producer & Brand Partnerships",
-    bio: "Creative media, content creation, and brand partnerships — passionate about environmental awareness and community projects.",
+    bio: "Creative Producer and Brand Partnerships lead at Mr Vilz — AI-focused IT undergraduate driving content creation, brand partnerships, and environmental campaigns with strong community engagement.",
     image_url: "/images/paboda.jpeg",
     sort_order: 3,
     is_leadership: 1
@@ -71,7 +71,7 @@ const defaultTeam = [
     name: "Nethmina",
     slug: "nethmina",
     position: "Co-Host & Head of Creative Director",
-    bio: "Shapes creative direction and co-hosts MrVilz content with a focus on bold visual storytelling and audience engagement.",
+    bio: "Shapes creative direction and co-hosts Mr Vilz content with a focus on bold visual storytelling and audience engagement.",
     image_url: "/images/nethmina.JPG",
     sort_order: 4,
     is_leadership: 1

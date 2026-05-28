@@ -105,25 +105,25 @@ async function syncTeamProfiles() {
       slug: "nadeesha",
       name: "Nadeesha D Shalom",
       position: "Founder, Presenter & Full-Stack Developer",
-      bio: "Software Engineering undergraduate and Founder of MrVilz — building digital solutions, cinematic travel content, and nature storytelling through modern technology."
+      bio: "Founder of Mr Vilz and BSc (Hons) Software Engineering undergraduate at SLIIT — full-stack development, AI engineering, travel media, and nature storytelling for conservation campaigns across Sri Lanka."
     },
     {
       slug: "nethmina",
       name: "Nethmina",
       position: "Co-Host & Head of Creative Director",
-      bio: "Shapes creative direction and co-hosts MrVilz content with a focus on bold visual storytelling and audience engagement."
+      bio: "Shapes creative direction and co-hosts Mr Vilz content with a focus on bold visual storytelling and audience engagement."
     },
     {
       slug: "chamidu",
       name: "Chamidu",
       position: "Co-Founder & Head of Media Production",
-      bio: "Videography and photography for MrVilz — field shoots, campaigns, and visual storytelling."
+      bio: "Co-Founder and Head of Media Production at Mr Vilz — videography and photography for beach cleanups, events, field work, and conservation storytelling across Sri Lanka."
     },
     {
       slug: "pabodha",
       name: "Pabodha Nuwangi",
       position: "Creative Producer & Brand Partnerships",
-      bio: "Creative media, content creation, and brand partnerships — passionate about environmental awareness and community projects."
+      bio: "Creative Producer and Brand Partnerships lead at Mr Vilz — AI-focused IT undergraduate driving content creation, brand partnerships, and environmental campaigns with strong community engagement."
     }
   ];
 

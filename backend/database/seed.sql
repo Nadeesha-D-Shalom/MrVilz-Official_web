@@ -45,7 +45,7 @@ INSERT INTO team_members (name, slug, position, bio, image_url, sort_order) VALU
   'Nadeesha D Shalom',
   'nadeesha',
   'Founder, Presenter & Full-Stack Developer',
-  'Software Engineering undergraduate and Founder of MrVilz — building digital solutions, cinematic travel content, and nature storytelling through modern technology.',
+  'Founder of Mr Vilz and BSc (Hons) Software Engineering undergraduate at SLIIT — full-stack development, AI engineering, travel media, and nature storytelling for conservation campaigns across Sri Lanka.',
   '/images/nadeesha1.JPG',
   1
 ),
@@ -53,7 +53,7 @@ INSERT INTO team_members (name, slug, position, bio, image_url, sort_order) VALU
   'Chamidu',
   'chamidu',
   'Co-Founder & Head of Media Production',
-  'Videography and photography for MrVilz — field shoots, campaigns, and visual storytelling.',
+  'Co-Founder and Head of Media Production at Mr Vilz — videography and photography for beach cleanups, events, field work, and conservation storytelling across Sri Lanka.',
   '/images/chamidu.jpeg',
   2
 ),
@@ -61,7 +61,7 @@ INSERT INTO team_members (name, slug, position, bio, image_url, sort_order) VALU
   'Pabodha Nuwangi',
   'pabodha',
   'Creative Producer & Brand Partnerships',
-  'Creative media, content creation, and brand partnerships — passionate about environmental awareness and community projects.',
+  'Creative Producer and Brand Partnerships lead at Mr Vilz — AI-focused IT undergraduate driving content creation, brand partnerships, and environmental campaigns with strong community engagement.',
   '/images/paboda.jpeg',
   3
 ),
@@ -69,7 +69,7 @@ INSERT INTO team_members (name, slug, position, bio, image_url, sort_order) VALU
   'Nethmina',
   'nethmina',
   'Co-Host & Head of Creative Director',
-  'Shapes creative direction and co-hosts MrVilz content with a focus on bold visual storytelling and audience engagement.',
+  'Shapes creative direction and co-hosts Mr Vilz content with a focus on bold visual storytelling and audience engagement.',
   '/images/nethmina.JPG',
   4
 )

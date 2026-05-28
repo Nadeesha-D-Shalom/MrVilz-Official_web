@@ -28,9 +28,15 @@ export const TEAM_PROFILES = {
     cardPosition: "Founder & Presenter",
     profilePosition: "Founder, Presenter & Full-Stack Developer · AI Engineer",
     summary:
-      "Founder of MrVilz and Software Engineering undergraduate — passionate about full-stack development, creative media, travel, and nature storytelling.",
-    education: "Bachelor of Science (Hons) in Software Engineering — SLIIT, Malabe, Sri Lanka",
+      "Founder of Mr Vilz and BSc (Hons) Software Engineering undergraduate at SLIIT — full-stack development, AI engineering, travel media, and nature storytelling for conservation campaigns across Sri Lanka.",
+    education: "BSc (Hons) in Software Engineering — SLIIT, Malabe, Sri Lanka",
     email: "nadeeshashalom1@gmail.com",
+    highlights: [
+      "Founder & Presenter at Mr Vilz",
+      "Full-stack development and AI engineering for digital conservation projects",
+      "Cinematic travel and nature storytelling on screen",
+      "Leads technology, media, and campaign direction for the organization"
+    ],
     socialLinks: [
       { label: "Facebook", url: "https://web.facebook.com/nadeesha.d.shalom/", icon: Facebook },
       { label: "Instagram", url: "https://www.instagram.com/nadeesha_d_shalom", icon: Instagram },
@@ -58,10 +64,19 @@ export const TEAM_PROFILES = {
   nethmina: {
     greetingName: "Nethmina",
     summary:
-      "Co-host and Head of Creative Director at MrVilz — shaping visual direction and on-screen storytelling for campaigns.",
+      "Co-host and Head of Creative Director at Mr Vilz — shapes visual direction and on-screen storytelling for campaigns. Head of planting project coordination and co-hosts Mr Vilz content with bold visual storytelling and audience engagement.",
+    education:
+      "BSc (Hons) in Information Technology Specializing in Computer Systems and Network Engineering — SLIIT, Sri Lanka",
+    highlights: [
+      "Visual direction and on-screen storytelling for campaigns",
+      "Head of coordination for Mr Vilz planting projects",
+      "Bold visual storytelling and audience engagement as co-host",
+      "BSc (Hons) IT — Computer Systems & Network Engineering (SLIIT)"
+    ],
     tags: [
       { label: "Creative Direction", icon: Palette },
       { label: "Co-Host", icon: Mic2 },
+      { label: "Planting Projects", icon: TreePine },
       { label: "Visual Storytelling", icon: Film },
       { label: "On-Camera", icon: Video }
     ]
@@ -69,16 +84,18 @@ export const TEAM_PROFILES = {
   pabodha: {
     greetingName: "Pabodha",
     displayName: "T.M.Pabodha Nuwangi Thennakoon",
+    cardPosition: "Creative Producer & Brand Partnerships",
+    profilePosition: "Creative Producer & Brand Partnerships · AI & Media",
     summary:
-      "I am a creative and active person with skills in dancing, content creation, teamwork, communication, and nature-based project activities. I am passionate about creative media work, environmental awareness, community projects, and presenting ideas in an attractive way.",
+      "Creative Producer and Brand Partnerships lead at Mr Vilz — BSc (Hons) IT undergraduate specializing in Artificial Intelligence at SLIIT. Drives content creation, on-camera presentation, brand partnerships, and environmental campaigns with strong teamwork and community engagement.",
     education:
       "BSc (Hons) in Information Technology Specializing in Artificial Intelligence — SLIIT, Sri Lanka",
     email: "pthennakoon25@gmail.com",
     highlights: [
-      "Creative Producer & Brand Partnerships at MrVilz",
-      "Content creation, presentation & community-facing media",
-      "Teamwork and communication on nature-based project activities",
-      "Environmental awareness through creative campaigns"
+      "Creative Producer & Brand Partnerships at Mr Vilz",
+      "AI-focused media, content creation, and on-camera presentation",
+      "Brand partnerships and community-facing environmental campaigns",
+      "Nature-based projects, teamwork, and creative storytelling"
     ],
     tags: [
       { label: "Content Creation", icon: Video },
@@ -92,16 +109,17 @@ export const TEAM_PROFILES = {
   chamidu: {
     greetingName: "Chamidu",
     displayName: "Chamidu Prabodya",
+    cardPosition: "Co-Founder & Media Production",
     profilePosition: "Co-Founder & Head of Media Production · Videography & Photography",
     summary:
-      "IT undergraduate passionate about videography and photography — capturing MrVilz campaigns, field moments, and conservation stories with a sharp eye for composition, light, and storytelling.",
+      "Co-Founder and Head of Media Production at Mr Vilz — BSc (Hons) IT undergraduate at SLIIT capturing videography and photography for beach cleanups, events, field work, and conservation storytelling across Sri Lanka.",
     education: "BSc (Hons) in Information Technology — SLIIT, Sri Lanka",
     email: "Chamiduworks@gmail.com",
     highlights: [
-      "Co-Founder & Head of Media Production at MrVilz",
+      "Co-Founder & Head of Media Production at Mr Vilz",
       "Videography for cleanups, events, and campaign films",
       "Photography for portraits, field work, and social content",
-      "Visual storytelling that supports environmental action"
+      "Visual storytelling that supports environmental action in Sri Lanka"
     ],
     tags: [
       { label: "Videography", icon: Video },
