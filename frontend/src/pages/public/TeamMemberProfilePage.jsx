@@ -123,9 +123,10 @@ export default function TeamMemberProfilePage() {
     );
   }
 
-  const aboutParagraphs = [profile.summary, member?.bio].filter(
-    (p, i, arr) => p && arr.indexOf(p) === i
-  );
+  const aboutParagraphs =
+    profile.about?.length > 0
+      ? profile.about
+      : [profile.summary, member?.bio].filter((p, i, arr) => p && arr.indexOf(p) === i);
   const contactHref = profile.email ? `mailto:${profile.email}` : "/contact";
   const roleLine = profile.position;
 
@@ -169,6 +170,11 @@ export default function TeamMemberProfilePage() {
                   </p>
                 ) : null}
                 <DetailRow label="Location">Sri Lanka</DetailRow>
+                {profile.detailsExtras?.map((row) => (
+                  <DetailRow key={row.label} label={row.label}>
+                    {row.value}
+                  </DetailRow>
+                ))}
               </div>
               {profile.socialLinks.length > 0 ? (
                 <div className="mt-4">
@@ -208,26 +214,32 @@ export default function TeamMemberProfilePage() {
 
           {/* Portrait card */}
           <aside className="order-1 lg:order-2 lg:sticky lg:top-24">
-            <div className="relative mx-auto w-full max-w-[240px] lg:mx-0 lg:max-w-none">
-              <div className="absolute left-1/2 top-0 z-10 h-20 w-20 -translate-x-1/2 overflow-hidden rounded-full border-[3px] border-white bg-brand-parchment shadow-md sm:h-[5.25rem] sm:w-[5.25rem]">
-                <img
-                  src={profile.imageUrl}
-                  alt={profile.name}
-                  fetchPriority="high"
-                  loading="eager"
-                  decoding="async"
-                  width={84}
-                  height={84}
-                  className="h-full w-full object-cover"
-                />
+            <div className="mx-auto w-full max-w-[260px] overflow-hidden rounded-xl bg-brand-red shadow-lg lg:mx-0 lg:max-w-none">
+              <div className="flex justify-center bg-brand-red px-5 pb-1 pt-6">
+                <div className="h-[7.5rem] w-[7.5rem] shrink-0 overflow-hidden rounded-full border-4 border-white bg-brand-parchment shadow-md">
+                  <img
+                    src={profile.imageUrl}
+                    alt={profile.name}
+                    fetchPriority="high"
+                    loading="eager"
+                    decoding="async"
+                    width={120}
+                    height={120}
+                    className="h-full w-full object-cover"
+                    style={{
+                      objectPosition: profile.photoObjectPosition || "center 25%",
+                      transform: profile.photoScale > 1 ? `scale(${profile.photoScale})` : undefined
+                    }}
+                  />
+                </div>
               </div>
 
-              <div className="rounded-lg bg-brand-red px-5 pb-5 pt-12 text-center text-white shadow-lg sm:pt-14">
+              <div className="px-5 pb-5 text-center text-white">
                 <p className="font-display text-base font-extrabold uppercase tracking-wide">
                   Hello, I&apos;m {profile.greetingName}
                 </p>
                 <p className="mx-auto mt-2 text-[13px] leading-snug text-white/90">
-                  {profile.summary}
+                  {profile.cardSummary || profile.summary}
                 </p>
                 {profile.socialLinks.length > 0 ? (
                   <div className="mt-4 flex justify-center">

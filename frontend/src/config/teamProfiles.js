@@ -25,17 +25,45 @@ import {
 export const TEAM_PROFILES = {
   nadeesha: {
     greetingName: "Nadeesha",
+    displayName: "Nadeesha D Shalom",
     cardPosition: "Founder & Presenter",
     profilePosition: "Founder, Presenter & Full-Stack Developer · AI Engineer",
+    photoObjectPosition: "center 8%",
+    photoScale: 1.45,
+    cardSummary:
+      "Founder of Mr Vilz — building this platform, leading campaigns, and telling conservation stories through code and camera.",
     summary:
       "Founder of Mr Vilz and BSc (Hons) Software Engineering undergraduate at SLIIT — full-stack development, AI engineering, travel media, and nature storytelling for conservation campaigns across Sri Lanka.",
     education: "BSc (Hons) in Software Engineering — SLIIT, Malabe, Sri Lanka",
     email: "nadeeshashalom1@gmail.com",
+    detailsExtras: [
+      { label: "Organization", value: "Mr Vilz — Founder & Presenter" },
+      {
+        label: "Focus",
+        value:
+          "Full-stack web development, AI tools, environmental media, travel storytelling, and youth-led conservation action"
+      },
+      {
+        label: "Skills",
+        value:
+          "React, Node.js, APIs, UI/UX, content creation, presenting, project leadership, and digital campaign strategy"
+      },
+      {
+        label: "Interests",
+        value: "Marine protection, beach cleanups, tree planting, travel, wildlife, and creative technology"
+      }
+    ],
+    about: [
+      "I am Nadeesha D Shalom, Founder and Presenter of Mr Vilz — a Sri Lankan youth-led movement combining environmental action, entertainment, and creative media. I lead the organization’s vision to protect nature while engaging communities through storytelling, technology, and on-screen presence.",
+      "As a Software Engineering undergraduate at SLIIT, I design and build the Mr Vilz website and digital tools end to end — from backend APIs and admin systems to public-facing experiences optimized for search, accessibility, and campaign impact. I apply AI where it helps teams work faster and reach more people with conservation messages.",
+      "On camera, I present Mr Vilz journeys — travel, field work, cleanups, and planting projects — with a focus on authentic narrative and cinematic quality. I collaborate with our media, creative, and coordination leads to turn field moments into campaigns that inspire volunteers, partners, and the next generation of environmental advocates in Sri Lanka."
+    ],
     highlights: [
-      "Founder & Presenter at Mr Vilz",
-      "Full-stack development and AI engineering for digital conservation projects",
-      "Cinematic travel and nature storytelling on screen",
-      "Leads technology, media, and campaign direction for the organization"
+      "Founder & Presenter — leads Mr Vilz strategy, media, and technology",
+      "Built and maintains the Mr Vilz official website and admin platform",
+      "Full-stack development and AI engineering for conservation digital projects",
+      "On-screen travel and nature storytelling for cleanups, planting, and campaigns",
+      "Partners with team leads on beach cleanups, tree planting, and community outreach"
     ],
     socialLinks: [
       { label: "Facebook", url: "https://web.facebook.com/nadeesha.d.shalom/", icon: Facebook },
@@ -63,6 +91,7 @@ export const TEAM_PROFILES = {
   },
   nethmina: {
     greetingName: "Nethmina",
+    photoObjectPosition: "center 20%",
     summary:
       "Co-host and Head of Creative Director at Mr Vilz — shapes visual direction and on-screen storytelling for campaigns. Head of planting project coordination and co-hosts Mr Vilz content with bold visual storytelling and audience engagement.",
     education:
@@ -84,6 +113,7 @@ export const TEAM_PROFILES = {
   pabodha: {
     greetingName: "Pabodha",
     displayName: "T.M.Pabodha Nuwangi Thennakoon",
+    photoObjectPosition: "center 22%",
     cardPosition: "Creative Producer & Brand Partnerships",
     profilePosition: "Creative Producer & Brand Partnerships · AI & Media",
     summary:
@@ -109,6 +139,7 @@ export const TEAM_PROFILES = {
   chamidu: {
     greetingName: "Chamidu",
     displayName: "Chamidu Prabodya",
+    photoObjectPosition: "center 18%",
     cardPosition: "Co-Founder & Media Production",
     profilePosition: "Co-Founder & Head of Media Production · Videography & Photography",
     summary:
@@ -150,7 +181,12 @@ export function mergeTeamProfile(member) {
     summary:
       extended?.summary ||
       member.bio ||
-      "Passionate contributor driving MrVilz impact across Sri Lanka.",
+      "Passionate contributor driving Mr Vilz impact across Sri Lanka.",
+    cardSummary: extended?.cardSummary || extended?.summary || member.bio || null,
+    about: extended?.about || null,
+    detailsExtras: extended?.detailsExtras || [],
+    photoObjectPosition: extended?.photoObjectPosition || "center 25%",
+    photoScale: extended?.photoScale || 1,
     education: extended?.education || null,
     email: extended?.email || null,
     socialLinks: extended?.socialLinks || [],
