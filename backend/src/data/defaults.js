@@ -44,7 +44,7 @@ const defaultTeam = [
     name: "Nadeesha D Shalom",
     slug: "nadeesha",
     position: "Founder, Presenter & Full-Stack Developer",
-    bio: "Founder of Mr Vilz and BSc (Hons) Software Engineering undergraduate at SLIIT — full-stack development, AI engineering, travel media, and nature storytelling for conservation campaigns across Sri Lanka.",
+    bio: "Nadeesha D Shalom is the Founder and Creative Technology Lead of Mr Vilz, driving environmental awareness through digital innovation, media storytelling, and youth-led community initiatives.",
     image_url: "/images/nadeesha1.JPG",
     sort_order: 1,
     is_leadership: 1

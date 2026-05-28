@@ -146,13 +146,37 @@ export const TEAM_PROFILES = {
   }
 };
 
-export function getTeamProfile(slug) {
-  return TEAM_PROFILES[slug] || null;
+/** Map URL/DB slug variants to profile keys (e.g. production DB may differ from config key). */
+export function normalizeProfileSlug(slug) {
+  if (!slug) return null;
+  const s = String(slug).toLowerCase().trim();
+  if (TEAM_PROFILES[s]) return s;
+  if (s.startsWith("nadeesha") || s.includes("shalom")) return "nadeesha";
+  if (s.includes("nethmin")) return "nethmina";
+  if (s.includes("chamidu")) return "chamidu";
+  if (s.includes("pabodha")) return "pabodha";
+  return s;
 }
 
-export function mergeTeamProfile(member) {
+function slugFromMember(member) {
   if (!member) return null;
-  const slug = member.slug || member.name?.toLowerCase().split(/\s+/)[0];
+  if (member.slug) return normalizeProfileSlug(member.slug);
+  const fromName = String(member.name || "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return normalizeProfileSlug(fromName);
+}
+
+export function getTeamProfile(slug) {
+  const key = normalizeProfileSlug(slug);
+  return key ? TEAM_PROFILES[key] || null : null;
+}
+
+export function mergeTeamProfile(member, routeSlug) {
+  if (!member) return null;
+  const slug = normalizeProfileSlug(routeSlug) || slugFromMember(member);
   const extended = getTeamProfile(slug);
   const firstName = member.name?.split(" ")[0] || member.name;
 

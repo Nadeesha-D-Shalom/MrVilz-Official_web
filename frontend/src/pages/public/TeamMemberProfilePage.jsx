@@ -89,7 +89,7 @@ export default function TeamMemberProfilePage() {
     };
   }, [slug, siteData?.team]);
 
-  const profile = mergeTeamProfile(member);
+  const profile = mergeTeamProfile(member, slug);
 
   if (loading) {
     return (
