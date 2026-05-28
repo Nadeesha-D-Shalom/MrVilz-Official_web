@@ -27,45 +27,26 @@ export const TEAM_PROFILES = {
     greetingName: "Nadeesha",
     displayName: "Nadeesha D Shalom",
     cardPosition: "Founder & Presenter",
-    profilePosition: "Founder, Presenter & Full-Stack Developer · AI Engineer",
+    profilePosition: "Founder & Creative Technology Lead · Software Engineer & Presenter",
     photoObjectPosition: "center 8%",
     photoScale: 1.45,
     cardSummary:
-      "Founder of Mr Vilz — a youth-driven digital and creative brand uniting leadership, creativity, technology, and positive social impact.",
+      "Nadeesha D Shalom — Founder & Developer behind Mr Vilz, combining technology, creativity, and environmental action.",
     summary:
-      "Nadeesha D Shalom founded Mr Vilz to combine leadership, creativity, technology, and social impact — driving digital creativity, media storytelling, web technologies, and community-centered initiatives across Sri Lanka.",
+      "Nadeesha D Shalom is the Founder and Creative Technology Lead of Mr Vilz, driving environmental awareness through digital innovation, media storytelling, and youth-led community initiatives.",
     education: "BSc (Hons) in Software Engineering — SLIIT, Malabe, Sri Lanka",
     email: "nadeeshashalom1@gmail.com",
-    detailsExtras: [
-      { label: "Organization", value: "Mr Vilz — Founder & Presenter (Nadeesha D Shalom)" },
-      {
-        label: "Brand focus",
-        value:
-          "Digital creativity, media storytelling, web technologies, software-powered solutions, and community-centered initiatives"
-      },
-      {
-        label: "Core values",
-        value:
-          "Leadership, originality, teamwork, environmental responsibility, and continuous growth"
-      },
-      {
-        label: "Mission",
-        value:
-          "Empower young talent, encourage creativity, and transform ideas into meaningful digital experiences with lasting impact"
-      }
-    ],
     about: [
-      "I am Nadeesha D Shalom, Founder of Mr Vilz — a modern youth-driven digital and creative brand built with a vision of combining leadership, creativity, technology, and positive social impact into one powerful platform.",
-      "Driven by innovation and purpose, Mr Vilz focuses on digital creativity, media storytelling, web technologies, software-powered solutions, and community-centered initiatives that inspire the next generation. The brand represents more than content creation — it reflects leadership, originality, teamwork, environmental responsibility, and continuous growth.",
-      "Under my leadership, Mr Vilz continues to grow as a platform that encourages creativity, empowers young talent, and transforms ideas into meaningful digital experiences. From creative media productions and branding to technology-driven projects and awareness campaigns, Mr Vilz aims to create a lasting impact through innovation and visionary thinking.",
-      "With a strong passion for leadership and creative excellence, I lead Mr Vilz as a symbol of ambition, innovation, and purpose-driven digital transformation — building experiences that matter for communities, partners, and the next generation in Sri Lanka."
+      "I am Nadeesha D Shalom, Founder and Creative Technology Lead of Mr Vilz — and the developer behind this official website. Mr Vilz is presented as a Sri Lankan youth-led environmental and creative media organization focused on conservation, media storytelling, software-powered projects, beach cleanups, tree planting, and community campaigns.",
+      "Mr Vilz is a modern youth-driven digital and creative brand I founded to combine leadership, creativity, technology, and positive social impact into one powerful platform. Driven by innovation and purpose, we focus on digital creativity, media storytelling, web technologies, software-powered solutions, and community-centered initiatives that inspire the next generation — reflecting leadership, originality, teamwork, environmental responsibility, and continuous growth.",
+      "Under my leadership, Mr Vilz encourages creativity, empowers young talent, and transforms ideas into meaningful digital experiences. From creative media productions and branding to technology-driven projects and awareness campaigns, we aim for lasting impact through innovation and visionary thinking — standing for ambition, creative excellence, and purpose-driven digital transformation."
     ],
     highlights: [
-      "Founded Mr Vilz — youth-driven digital and creative brand",
-      "Unites leadership, creativity, technology, and positive social impact",
-      "Digital creativity, media storytelling, web tech, and software-powered solutions",
-      "Creative media, branding, technology projects, and awareness campaigns",
-      "Environmental responsibility, teamwork, and empowering young talent"
+      "Founder & Creative Technology Lead — built the Mr Vilz official website and platform",
+      "Full-stack development, AI, and software-powered environmental & media projects",
+      "Conservation storytelling — beach cleanups, tree planting, and community campaigns",
+      "Creative media, branding, presenting, and youth-led digital experiences",
+      "BSc (Hons) Software Engineering — SLIIT, Malabe, Sri Lanka"
     ],
     socialLinks: [
       { label: "Facebook", url: "https://web.facebook.com/nadeesha.d.shalom/", icon: Facebook },
