@@ -189,6 +189,32 @@ const Admin = mongoose.model(
   )
 );
 
+const Product = mongoose.model(
+  "Product",
+  new mongoose.Schema(
+    {
+      title: { type: String, required: true },
+      slug: { type: String, unique: true, sparse: true },
+      description: String,
+      short_description: String,
+      price: { type: Number, required: true, min: 0 },
+      compare_at_price: { type: Number, default: null },
+      currency: { type: String, default: "LKR" },
+      image_url: String,
+      category: { type: String, default: "general" },
+      tags: { type: [String], default: [] },
+      sku: String,
+      stock: { type: Number, default: 0 },
+      condition: { type: String, default: "new" },
+      purchase_link: String,
+      is_active: { type: Number, default: 1 },
+      is_featured: { type: Number, default: 0 },
+      sort_order: { type: Number, default: 0 }
+    },
+    { timestamps: ts }
+  )
+);
+
 module.exports = {
   SiteContent,
   SiteStat,
@@ -200,5 +226,6 @@ module.exports = {
   TeamApplication,
   CareerPost,
   JobApplication,
-  Admin
+  Admin,
+  Product
 };

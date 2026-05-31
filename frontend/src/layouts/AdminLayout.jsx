@@ -54,25 +54,25 @@ export default function AdminLayout() {
   const pageTitle = getPageTitle(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[#f4f2ef]">
+    <div className="admin-shell min-h-screen bg-[#eef1f7]">
       {mobileOpen ? (
         <button
           type="button"
           aria-label="Close menu"
-          className="fixed inset-0 z-40 bg-brand-ink/50 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       ) : null}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-[min(100%,288px)] border-r border-slate-200/90 bg-white shadow-xl transition-transform duration-300 ease-out lg:z-30 lg:w-[260px] lg:translate-x-0 lg:shadow-none ${
+        className={`fixed inset-y-0 left-0 z-50 w-[min(100%,300px)] transition-transform duration-300 ease-out lg:z-30 lg:w-[272px] lg:translate-x-0 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
         <button
           type="button"
           aria-label="Close menu"
-          className="absolute right-3 top-4 z-10 rounded-lg p-2 text-slate-500 hover:bg-slate-100 lg:hidden"
+          className="absolute right-3 top-4 z-10 rounded-xl p-2 text-white/70 hover:bg-white/10 lg:hidden"
           onClick={() => setMobileOpen(false)}
         >
           <X size={20} />
@@ -80,31 +80,39 @@ export default function AdminLayout() {
         <AdminSidebar admin={admin} onNavigate={() => setMobileOpen(false)} />
       </aside>
 
-      <div className="lg:pl-[260px]">
-        <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-brand-ink/8 bg-white/95 px-4 py-3.5 shadow-sm backdrop-blur-md sm:px-6 lg:px-8">
-          <button
-            type="button"
-            aria-label="Open menu"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-brand-ink/10 bg-brand-cream text-brand-ink lg:hidden"
-            onClick={() => setMobileOpen(true)}
-          >
-            <Menu size={20} />
-          </button>
-          <div className="min-w-0 flex-1">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-brand-red lg:hidden">
-              Mr Vilz Admin
-            </p>
-            <h1 className="truncate font-display text-xl font-extrabold text-brand-ink sm:text-2xl">
-              {pageTitle}
-            </h1>
+      <div className="lg:pl-[272px]">
+        <header className="sticky top-0 z-20 border-b border-white/60 bg-white/80 px-4 py-3.5 shadow-[0_1px_0_rgba(15,23,42,0.06)] backdrop-blur-xl sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              aria-label="Open menu"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-200/80 bg-white text-slate-700 shadow-sm lg:hidden"
+              onClick={() => setMobileOpen(true)}
+            >
+              <Menu size={20} />
+            </button>
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-[0.16em] text-brand-red lg:hidden">
+                Admin Console
+              </p>
+              <h1 className="truncate font-display text-xl font-extrabold text-slate-900 sm:text-2xl">
+                {pageTitle}
+              </h1>
+            </div>
+            <AdminProfileMenu admin={admin} onLogout={logout} />
           </div>
-          <AdminProfileMenu admin={admin} onLogout={logout} />
         </header>
 
-        <main className="px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
-          <AdminErrorBoundary>
-            <Outlet />
-          </AdminErrorBoundary>
+        <main className="relative px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(15,23,42,0.04)_1px,transparent_0)] [background-size:24px_24px]"
+          />
+          <div className="relative">
+            <AdminErrorBoundary>
+              <Outlet />
+            </AdminErrorBoundary>
+          </div>
         </main>
       </div>
     </div>

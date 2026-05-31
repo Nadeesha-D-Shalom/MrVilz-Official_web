@@ -96,3 +96,47 @@ export function buildTeamFormData(member, imageFile) {
   if (imageFile) fd.append("image", imageFile);
   return fd;
 }
+
+export function buildProductFormData(product, imageFile) {
+  const fd = new FormData();
+  fd.append("title", product.title || "");
+  if (product.description !== undefined) fd.append("description", product.description || "");
+  if (product.shortDescription !== undefined || product.short_description !== undefined) {
+    fd.append(
+      "shortDescription",
+      product.shortDescription ?? product.short_description ?? ""
+    );
+  }
+  fd.append("price", String(Number(product.price) || 0));
+  if (product.compareAtPrice !== undefined || product.compare_at_price !== undefined) {
+    fd.append(
+      "compareAtPrice",
+      String(product.compareAtPrice ?? product.compare_at_price ?? "")
+    );
+  }
+  if (product.currency) fd.append("currency", product.currency);
+  if (product.category) fd.append("category", product.category);
+  if (product.tags !== undefined) {
+    const tags = Array.isArray(product.tags) ? product.tags.join(", ") : product.tags;
+    fd.append("tags", tags || "");
+  }
+  if (product.sku !== undefined) fd.append("sku", product.sku || "");
+  fd.append("stock", String(Number(product.stock) || 0));
+  if (product.condition) fd.append("condition", product.condition);
+  if (product.purchaseLink !== undefined || product.purchase_link !== undefined) {
+    fd.append("purchaseLink", product.purchaseLink ?? product.purchase_link ?? "");
+  }
+  fd.append("sortOrder", String(Number(product.sortOrder ?? product.sort_order) || 0));
+  if (product.isActive !== undefined) {
+    fd.append("isActive", product.isActive ? "true" : "false");
+  } else if (product.is_active !== undefined) {
+    fd.append("isActive", product.is_active ? "true" : "false");
+  }
+  if (product.isFeatured !== undefined) {
+    fd.append("isFeatured", product.isFeatured ? "true" : "false");
+  } else if (product.is_featured !== undefined) {
+    fd.append("isFeatured", product.is_featured ? "true" : "false");
+  }
+  if (imageFile) fd.append("image", imageFile);
+  return fd;
+}

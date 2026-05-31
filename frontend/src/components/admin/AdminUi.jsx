@@ -4,7 +4,7 @@ import { Check, Loader2, Plus, Trash2, Save } from "lucide-react";
 export function AdminLoadError({ message }) {
   if (!message) return null;
   return (
-    <p className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900">
+    <p className="rounded-2xl border border-amber-200/80 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-900 shadow-sm">
       {message}
     </p>
   );
@@ -12,14 +12,12 @@ export function AdminLoadError({ message }) {
 
 export function AdminPageShell({ description, children, action, loadError }) {
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <AdminLoadError message={loadError} />
       {(description || action) && (
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-4 rounded-2xl border border-white/80 bg-white/90 p-5 shadow-[0_8px_30px_rgba(15,23,42,0.06)] backdrop-blur sm:flex-row sm:items-start sm:justify-between sm:p-6">
           {description ? (
-            <p className="max-w-2xl text-xs leading-relaxed text-slate-500 sm:text-sm">
-              {description}
-            </p>
+            <p className="max-w-2xl text-sm leading-relaxed text-slate-600">{description}</p>
           ) : (
             <span />
           )}
@@ -33,20 +31,20 @@ export function AdminPageShell({ description, children, action, loadError }) {
 
 export function AdminPanel({ title, description, children, footer, icon: Icon }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm">
+    <section className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
       {(title || description) && (
-        <div className="border-b border-slate-100 px-5 py-4 sm:px-6">
+        <div className="border-b border-slate-100 bg-gradient-to-r from-slate-50 to-white px-5 py-4 sm:px-6">
           <div className="flex items-start gap-3">
             {Icon ? (
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 text-white shadow-lg shadow-slate-900/20">
                 <Icon size={20} />
               </span>
             ) : null}
             <div>
-              {title ? <h2 className="font-display text-xl font-bold text-brand-ink">{title}</h2> : null}
-              {description ? (
-                <p className="mt-0.5 text-xs text-slate-500">{description}</p>
+              {title ? (
+                <h2 className="font-display text-xl font-bold text-slate-900">{title}</h2>
               ) : null}
+              {description ? <p className="mt-0.5 text-xs text-slate-500">{description}</p> : null}
             </div>
           </div>
         </div>
@@ -80,7 +78,7 @@ export function AdminInput(props) {
   return (
     <input
       {...props}
-      className={`w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-brand-ink outline-none transition placeholder:text-slate-400 focus:border-brand-ink/30 focus:ring-2 focus:ring-brand-ink/10 ${props.className || ""}`}
+      className={`w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 ${props.className || ""}`}
     />
   );
 }
@@ -89,7 +87,7 @@ export function AdminTextarea(props) {
   return (
     <textarea
       {...props}
-      className={`w-full resize-y rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-brand-ink outline-none transition placeholder:text-slate-400 focus:border-brand-ink/30 focus:ring-2 focus:ring-brand-ink/10 ${props.className || ""}`}
+      className={`w-full resize-y rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 ${props.className || ""}`}
     />
   );
 }
@@ -98,7 +96,7 @@ export function AdminSelect(props) {
   return (
     <select
       {...props}
-      className={`w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-brand-ink outline-none transition focus:border-brand-ink/30 focus:ring-2 focus:ring-brand-ink/10 ${props.className || ""}`}
+      className={`w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-900 outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-900/5 ${props.className || ""}`}
     />
   );
 }
@@ -113,10 +111,11 @@ export function AdminButton({
   ...props
 }) {
   const variants = {
-    primary: "bg-brand-red text-white hover:bg-brand-red-mid shadow-sm shadow-brand-red/20",
+    primary:
+      "bg-brand-red text-white hover:bg-brand-red-mid shadow-lg shadow-brand-red/20 hover:shadow-brand-red/30",
     secondary:
-      "border border-slate-200 bg-white text-brand-ink hover:border-brand-ink/20 hover:bg-slate-50",
-    dark: "bg-brand-ink text-white hover:bg-brand-brown",
+      "border border-slate-200 bg-white text-slate-800 hover:border-slate-300 hover:bg-slate-50",
+    dark: "bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-900/15",
     danger: "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
   };
   const sizes = {
@@ -142,10 +141,10 @@ export function AdminButton({
 
 export function AdminEmpty({ icon: Icon, title, description }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-14 text-center">
+    <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/80 px-6 py-14 text-center">
       {Icon ? (
-        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-slate-400 shadow-sm">
-          <Icon size={24} />
+        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-400 shadow-sm">
+          <Icon size={26} />
         </span>
       ) : null}
       <p className="mt-4 font-display text-lg font-bold text-slate-700">{title}</p>
@@ -200,7 +199,7 @@ export function AdminStatusBadge({ status }) {
 export function AdminListCard({ children, className = "" }) {
   return (
     <article
-      className={`rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6 ${className}`}
+      className={`rounded-2xl border border-slate-200/80 bg-white p-5 shadow-[0_4px_20px_rgba(15,23,42,0.04)] sm:p-6 ${className}`}
     >
       {children}
     </article>
@@ -276,7 +275,6 @@ export function useRowSaveState() {
     }
   }
 
-  /** Save every item in order; `saveOne(item)` performs the API call for that row. */
   async function runSaveAll(items, saveOne) {
     if (!items?.length) return { saved: 0, failed: 0 };
     setSavingAll(true);

@@ -10,21 +10,23 @@ function NavItem({ link, onNavigate }) {
       end={link.end}
       onClick={onNavigate}
       className={({ isActive }) =>
-        `flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-medium transition ${
+        `group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
           isActive
-            ? "bg-slate-200/90 text-brand-ink"
-            : "text-slate-600 hover:bg-slate-50 hover:text-slate-800"
+            ? "bg-white/12 text-white shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+            : "text-white/60 hover:bg-white/6 hover:text-white/90"
         }`
       }
     >
       {({ isActive }) => (
         <>
           <span
-            className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md ${
-              isActive ? "bg-white text-slate-700" : "bg-slate-100 text-slate-500"
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition ${
+              isActive
+                ? "bg-brand-red text-white shadow-lg shadow-brand-red/30"
+                : "bg-white/8 text-white/70 group-hover:bg-white/12"
             }`}
           >
-            <Icon size={15} strokeWidth={2.25} />
+            <Icon size={16} strokeWidth={2.25} />
           </span>
           <span className="truncate">{link.label}</span>
         </>
@@ -52,7 +54,7 @@ export default function AdminNavGroup({ group, onNavigate }) {
 
   if (!group.collapsible) {
     return (
-      <ul className="space-y-0.5">
+      <ul className="space-y-1">
         {group.items.map((link) => (
           <li key={link.to}>
             <NavItem link={link} onNavigate={onNavigate} />
@@ -63,14 +65,12 @@ export default function AdminNavGroup({ group, onNavigate }) {
   }
 
   return (
-    <div>
+    <div className="pb-1">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-2 text-left text-xs font-bold uppercase tracking-[0.12em] transition ${
-          active
-            ? "bg-brand-red/10 text-brand-red"
-            : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+        className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-[10px] font-bold uppercase tracking-[0.14em] transition ${
+          active ? "text-brand-red" : "text-white/40 hover:text-white/70"
         }`}
         aria-expanded={open}
       >
@@ -81,8 +81,8 @@ export default function AdminNavGroup({ group, onNavigate }) {
         />
       </button>
       <ul
-        className={`mt-0.5 space-y-0.5 overflow-hidden pl-1 transition-all duration-200 ${
-          open ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"
+        className={`mt-1 space-y-1 overflow-hidden pl-1 transition-all duration-200 ${
+          open ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
         }`}
       >
         {group.items.map((link) => (

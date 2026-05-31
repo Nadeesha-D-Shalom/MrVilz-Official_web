@@ -80,10 +80,12 @@ function createHashedImageUpload(folderName, { maxFiles = 30 } = {}) {
 const galleryImage = createHashedImageUpload("gallery");
 const projectImage = createHashedImageUpload("projects");
 const teamImage = createHashedImageUpload("team");
+const productImage = createHashedImageUpload("products");
 
 module.exports = {
   createHashedImageUpload,
   galleryImage,
   projectImage,
-  teamImage
+  teamImage,
+  productImage
 };

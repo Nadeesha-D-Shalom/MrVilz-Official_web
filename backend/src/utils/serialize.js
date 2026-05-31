@@ -214,6 +214,70 @@ function galleryPublic(doc) {
   };
 }
 
+function productPublic(doc, { full = false } = {}) {
+  const o = withId(doc);
+  if (!o) return null;
+  const base = {
+    id: o.id,
+    title: o.title,
+    slug: o.slug,
+    shortDescription: o.short_description || "",
+    price: o.price,
+    compareAtPrice: o.compare_at_price,
+    currency: o.currency || "LKR",
+    imageUrl: o.image_url,
+    category: o.category || "general",
+    stock: o.stock ?? 0,
+    condition: o.condition || "new",
+    isFeatured: o.is_featured === 1,
+    inStock: (o.stock ?? 0) > 0
+  };
+  if (full) {
+    return {
+      ...base,
+      description: o.description || "",
+      tags: o.tags || [],
+      sku: o.sku || null,
+      purchaseLink: o.purchase_link || null
+    };
+  }
+  return base;
+}
+
+function productAdmin(doc) {
+  const o = withId(doc);
+  if (!o) return null;
+  return {
+    id: o.id,
+    title: o.title,
+    slug: o.slug,
+    description: o.description || "",
+    short_description: o.short_description || "",
+    shortDescription: o.short_description || "",
+    price: o.price,
+    compare_at_price: o.compare_at_price,
+    compareAtPrice: o.compare_at_price,
+    currency: o.currency || "LKR",
+    image_url: o.image_url,
+    imageUrl: o.image_url,
+    category: o.category || "general",
+    tags: o.tags || [],
+    sku: o.sku || "",
+    stock: o.stock ?? 0,
+    condition: o.condition || "new",
+    purchase_link: o.purchase_link || "",
+    purchaseLink: o.purchase_link || "",
+    is_active: o.is_active,
+    isActive: Boolean(o.is_active),
+    is_featured: o.is_featured ?? 0,
+    isFeatured: o.is_featured === 1,
+    sort_order: o.sort_order,
+    sortOrder: o.sort_order,
+    createdAt: o.created_at,
+    updatedAt: o.updated_at
+  };
+}
+
 module.exports = {
   withId,
   withIdList,
@@ -228,5 +292,7 @@ module.exports = {
   messageAdmin,
   teamAppAdmin,
   jobAppAdmin,
-  galleryPublic
+  galleryPublic,
+  productPublic,
+  productAdmin
 };

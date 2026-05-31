@@ -80,7 +80,7 @@ export default function LoginPage() {
           </p>
           <p className="mt-2 text-sm text-white/65">Nature · Media · Conservation</p>
           <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {["Stats", "Team", "Gallery", "Careers"].map((tag) => (
+            {["Marketplace", "Gallery", "Team", "Careers"].map((tag) => (
               <span
                 key={tag}
                 className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[11px] font-bold text-white/85"
@@ -92,7 +92,7 @@ export default function LoginPage() {
         </div>
 
         <p className="relative z-10 text-sm leading-relaxed text-white/55">
-          Secure workspace for managing Mr Vilz content, team, careers, and community applications.
+          Secure console for managing content, marketplace products, team, careers, and applications.
         </p>
       </aside>
 

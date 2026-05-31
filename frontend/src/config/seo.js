@@ -158,6 +158,12 @@ export const ROUTE_SEO = {
     description: "Photos from Mr Vilz beach cleanups, tree planting, team, and field media production in Sri Lanka.",
     keywords: "Mr Vilz gallery, mrvilz photos, environment cleanup images Sri Lanka"
   },
+  "/marketplace": {
+    title: `Marketplace — ${SITE_TAB_NAME}`,
+    description:
+      "Shop Mr Vilz marketplace — eco-friendly products and merchandise. Browse items, compare prices, and order online.",
+    keywords: "Mr Vilz marketplace, mrvilz shop, eco products Sri Lanka, buy online Mr Vilz"
+  },
   "/contact": {
     title: `Contact — ${SITE_TAB_NAME}`,
     description: "Contact Mr Vilz for partnerships, media, volunteering, jobs, and environmental projects in Sri Lanka.",
@@ -215,6 +221,17 @@ export function seoForPath(pathname) {
       title: `${name} — Mr Vilz Team — ${SITE_TAB_NAME}`,
       description: `${name} at Mr Vilz — Sri Lankan environmental, media, and creative organization. Official team profile.`,
       keywords: `Mr Vilz team, ${name}, mrvilz`,
+      url: absoluteUrl(pathname)
+    };
+  }
+
+  const productMatch = pathname.match(/^\/marketplace\/([^/]+)$/);
+  if (productMatch) {
+    const slug = productMatch[1].replace(/-/g, " ");
+    return {
+      title: `${slug} — Marketplace — ${SITE_TAB_NAME}`,
+      description: `Buy ${slug} from the Mr Vilz marketplace. Eco-friendly products supporting conservation in Sri Lanka.`,
+      keywords: `Mr Vilz marketplace, ${slug}, mrvilz shop`,
       url: absoluteUrl(pathname)
     };
   }

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowUpRight, LayoutDashboard } from "lucide-react";
+import { ArrowUpRight, LayoutDashboard, Sparkles } from "lucide-react";
 import { ADMIN_DASHBOARD_GROUPS } from "../../config/adminNav";
 import { useAuth } from "../../context/AuthContext";
 import { isSuperAdmin } from "../../utils/adminRole";
@@ -13,75 +13,75 @@ export default function DashboardPage() {
   })).filter((group) => group.items.length > 0);
 
   return (
-    <div className="mx-auto max-w-6xl">
-      <div className="overflow-hidden rounded-2xl border border-brand-ink/8 bg-white shadow-sm lg:rounded-3xl">
-        <div className="border-b border-slate-100 bg-slate-50/80 px-6 py-5 sm:px-8">
-          <p className="flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.12em] text-brand-red">
+    <div className="mx-auto max-w-6xl space-y-8">
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#0f172a] via-[#111827] to-[#1e293b] p-6 text-white shadow-2xl shadow-slate-900/25 sm:p-8">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-red/20 blur-3xl"
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -bottom-20 left-1/3 h-40 w-40 rounded-full bg-sky-500/10 blur-3xl"
+        />
+        <div className="relative">
+          <p className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-brand-red">
             <LayoutDashboard size={12} />
             Overview
           </p>
-          <h2 className="mt-2 font-display text-2xl font-extrabold text-brand-ink sm:text-3xl">
-            Welcome back
-          </h2>
-        </div>
-        <div className="flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-          <p className="max-w-xl text-sm leading-relaxed text-brand-brown sm:text-base">
-            Manage your public website content, team, messages, and applications from the sections
-            below.
+          <h2 className="mt-2 font-display text-3xl font-extrabold sm:text-4xl">Welcome back</h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base">
+            Manage your website, marketplace, team, and applications from one modern console.
           </p>
           <Link
             to="/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex shrink-0 items-center justify-center gap-2 self-start rounded-xl bg-brand-red px-5 py-2.5 text-sm font-bold text-white transition hover:bg-brand-red-mid sm:self-auto"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-slate-900 transition hover:bg-white/90"
           >
-            Preview site
+            Preview live site
             <ArrowUpRight size={16} />
           </Link>
         </div>
       </div>
 
-      <div className="mt-8 space-y-10">
-        {dashboardGroups.map((group) => (
-          <section key={group.label}>
-            <h3 className="mb-3 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">
+      {dashboardGroups.map((group) => (
+        <section key={group.label}>
+          <div className="mb-4 flex items-center gap-2">
+            <Sparkles size={14} className="text-brand-red" />
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">
               {group.label}
             </h3>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {group.items.map((card) => {
-                const Icon = card.icon;
-                return (
-                  <Link
-                    key={card.to}
-                    to={card.to}
-                    className="group flex flex-col rounded-2xl border border-brand-ink/8 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-red/30 hover:shadow-lg"
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <span
-                        className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${card.accent}`}
-                      >
-                        <Icon size={22} strokeWidth={2} />
-                      </span>
-                      <span className="rounded-lg p-1.5 text-slate-300 transition group-hover:bg-brand-red/10 group-hover:text-brand-red">
-                        <ArrowUpRight size={18} />
-                      </span>
-                    </div>
-                    <h4 className="mt-4 font-display text-xl font-bold text-brand-ink">
-                      {card.title}
-                    </h4>
-                    <p className="mt-1.5 flex-1 text-xs leading-relaxed text-slate-500 sm:text-sm">
-                      {card.desc}
-                    </p>
-                    <span className="mt-4 text-xs font-bold text-brand-red opacity-0 transition group-hover:opacity-100">
-                      Open →
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {group.items.map((card) => {
+              const Icon = card.icon;
+              return (
+                <Link
+                  key={card.to}
+                  to={card.to}
+                  className="group relative overflow-hidden rounded-2xl border border-white/80 bg-white p-5 shadow-[0_8px_30px_rgba(15,23,42,0.06)] transition hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(15,23,42,0.1)]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <span
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${card.accent}`}
+                    >
+                      <Icon size={22} strokeWidth={2} />
                     </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-        ))}
-      </div>
+                    <span className="rounded-xl p-2 text-slate-300 transition group-hover:bg-brand-red/10 group-hover:text-brand-red">
+                      <ArrowUpRight size={18} />
+                    </span>
+                  </div>
+                  <h4 className="mt-4 font-display text-xl font-bold text-slate-900">{card.title}</h4>
+                  <p className="mt-1.5 text-sm leading-relaxed text-slate-500">{card.desc}</p>
+                  <span className="mt-4 inline-flex text-xs font-bold text-brand-red opacity-0 transition group-hover:opacity-100">
+                    Open section →
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </section>
+      ))}
     </div>
   );
 }

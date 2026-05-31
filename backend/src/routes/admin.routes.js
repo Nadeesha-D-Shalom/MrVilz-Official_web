@@ -2,10 +2,11 @@ const { Router } = require("express");
 const adminController = require("../controllers/admin.controller");
 const adminUsersController = require("../controllers/adminUsers.controller");
 const careersController = require("../controllers/careers.controller");
+const marketplaceController = require("../controllers/marketplace.controller");
 const { authRequired, loadAdminRole, requireSuperAdmin } = require("../middleware/auth");
 const { upload } = require("../middleware/upload");
 const { galleryUpload } = require("../middleware/uploadGallery");
-const { projectImage, teamImage } = require("../middleware/uploadHashedImage");
+const { projectImage, teamImage, productImage } = require("../middleware/uploadHashedImage");
 
 const router = Router();
 
@@ -52,6 +53,13 @@ router.get("/gallery", adminController.listGallery);
 router.post("/gallery", galleryUpload.array("images", 30), adminController.createGalleryItems);
 router.put("/gallery/:id", galleryUpload.single("image"), adminController.updateGalleryItem);
 router.delete("/gallery/:id", adminController.deleteGalleryItem);
+
+router.get("/products", marketplaceController.listProducts);
+router.get("/products/:id", marketplaceController.getProduct);
+router.post("/products", productImage.upload.single("image"), marketplaceController.createProduct);
+router.put("/products/:id", productImage.upload.single("image"), marketplaceController.updateProduct);
+router.delete("/products/:id", marketplaceController.deleteProduct);
+router.put("/marketplace-settings/page", marketplaceController.updateMarketplaceSettings);
 
 router.get("/users", requireSuperAdmin, adminUsersController.listAdmins);
 router.post("/users", requireSuperAdmin, adminUsersController.createAdmin);

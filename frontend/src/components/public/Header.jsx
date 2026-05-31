@@ -7,9 +7,8 @@ import ScrollLink from "../navigation/ScrollLink";
 
 const navItems = [
   { label: "Home", to: "/", section: "home" },
-  { label: "About", to: "/#about", section: "about" },
-  { label: "Projects", to: "/#projects", section: "projects" },
   { label: "Gallery", to: "/gallery" },
+  { label: "Marketplace", to: "/marketplace" },
   { label: "Careers", to: "/careers" },
   { label: "Discover", to: "/discover", hideOnMobile: true },
   { label: "Contact", to: "/contact" }

@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const publicController = require("../controllers/public.controller");
 const careersController = require("../controllers/careers.controller");
+const marketplaceController = require("../controllers/marketplace.controller");
 const { applicationUpload } = require("../middleware/uploadApplication");
 
 const router = Router();
@@ -9,6 +10,8 @@ router.get("/site", publicController.getSiteData);
 router.get("/team/:slug", publicController.getTeamMember);
 router.get("/careers", careersController.listPublishedCareers);
 router.get("/gallery", publicController.getGallery);
+router.get("/marketplace", marketplaceController.listPublishedProducts);
+router.get("/marketplace/:slug", marketplaceController.getPublishedProduct);
 router.post("/contact", publicController.submitContact);
 router.post("/join-team", publicController.submitJoinTeam);
 router.post(

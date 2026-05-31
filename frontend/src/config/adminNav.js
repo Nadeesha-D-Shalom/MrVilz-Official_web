@@ -12,7 +12,9 @@ import {
   ExternalLink,
   LogOut,
   Menu,
-  X
+  X,
+  ShoppingBag,
+  Store
 } from "lucide-react";
 
 export const ADMIN_NAV_GROUPS = [
@@ -21,6 +23,13 @@ export const ADMIN_NAV_GROUPS = [
     label: "Overview",
     collapsible: false,
     items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true }]
+  },
+  {
+    id: "commerce",
+    label: "Marketplace",
+    collapsible: true,
+    defaultOpen: true,
+    items: [{ to: "/admin/products", label: "Products", icon: ShoppingBag }]
   },
   {
     id: "website",
@@ -69,6 +78,18 @@ export const ADMIN_EXTRA_PAGE_TITLES = {
 };
 
 export const ADMIN_DASHBOARD_GROUPS = [
+  {
+    label: "Marketplace",
+    items: [
+      {
+        to: "/admin/products",
+        title: "Products",
+        desc: "Add, edit, and publish items for sale",
+        icon: Store,
+        accent: "bg-orange-500/10 text-orange-700"
+      }
+    ]
+  },
   {
     label: "Website",
     items: [
