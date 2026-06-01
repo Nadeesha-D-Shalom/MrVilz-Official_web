@@ -50,6 +50,7 @@ router.delete("/careers/:id", careersController.deleteCareerPost);
 router.put("/careers-settings/page", careersController.updateCareersSettings);
 
 router.get("/gallery", galleryController.listAdminGallery);
+router.put("/gallery/bundle", galleryController.saveGalleryBundle);
 router.post("/gallery", galleryUpload.array("images", 30), galleryController.createGalleryItems);
 router.put("/gallery/:id", galleryUpload.single("image"), galleryController.updateGalleryItem);
 router.delete("/gallery/:id", galleryController.deleteGalleryItem);

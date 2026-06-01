@@ -56,21 +56,35 @@ export default function GalleryAdminPage() {
   const [sectionForm, setSectionForm] = useState(EMPTY_SECTION);
   const [sectionSaving, setSectionSaving] = useState(false);
   const [editingSection, setEditingSection] = useState(null);
-  const [settingsSaving, setSettingsSaving] = useState(false);
   const [notice, setNotice] = useState("");
+  const [noticeType, setNoticeType] = useState("success");
   const [expandedSection, setExpandedSection] = useState(null);
   const fileInputRef = useRef(null);
   const editFileRef = useRef(null);
 
+  function showNotice(message, type = "success") {
+    setNotice(message);
+    setNoticeType(type);
+  }
+
   function load() {
-    api.get("/admin/gallery").then(({ data }) => {
-      setSections(data.sections || []);
-      setItems(data.items || []);
-      setSettings(data.settings || { title: "", intro: "" });
-      if (!selectedSectionId && data.sections?.length) {
-        setSelectedSectionId(data.sections[0].id);
-      }
-    });
+    api
+      .get("/admin/gallery")
+      .then(({ data }) => {
+        setSections(data.sections || []);
+        setItems(data.items || []);
+        setSettings(data.settings || { title: "", intro: "" });
+        if (!selectedSectionId && data.sections?.length) {
+          setSelectedSectionId(data.sections[0].id);
+        }
+      })
+      .catch((err) => {
+        showNotice(
+          err.response?.data?.message ||
+            "Could not load gallery. Restart the backend server and try again.",
+          "error"
+        );
+      });
   }
 
   useEffect(() => {
@@ -91,11 +105,8 @@ export default function GalleryAdminPage() {
   async function uploadFiles(selectedFiles, formMeta, sectionId) {
     const fileList = Array.from(selectedFiles);
     if (!fileList.length) return;
-    if (!sectionId) {
-      setNotice("Select a gallery section before uploading.");
-      return;
-    }
 
+    showNotice("", "success");
     const jobItems = fileList.map((f, i) => ({
       name: f.name,
       title:
@@ -122,7 +133,7 @@ export default function GalleryAdminPage() {
 
     const formData = new FormData();
     fileList.forEach((f) => formData.append("images", f));
-    formData.append("sectionId", sectionId);
+    if (sectionId) formData.append("sectionId", sectionId);
     if (formMeta.title) formData.append("title", formMeta.title);
     if (formMeta.caption) formData.append("caption", formMeta.caption);
     if (formMeta.altText) formData.append("altText", formMeta.altText);
@@ -171,9 +182,10 @@ export default function GalleryAdminPage() {
       setMeta(EMPTY_META);
       if (fileInputRef.current) fileInputRef.current.value = "";
       load();
-      setNotice(`${saved.length} image(s) uploaded.`);
+      showNotice(`${saved.length} image(s) uploaded.`);
     } catch (err) {
       const message = err.response?.data?.message || err.message || "Upload failed";
+      showNotice(message, "error");
       setImportJob((j) =>
         j
           ? {
@@ -194,26 +206,51 @@ export default function GalleryAdminPage() {
 
   async function saveSection(event) {
     event.preventDefault();
-    if (!sectionForm.title.trim()) {
-      setNotice("Section title is required.");
+    const pageTitle = settings.title.trim() || sectionForm.title.trim();
+    const sectionTitle = sectionForm.title.trim() || settings.title.trim();
+
+    if (!pageTitle) {
+      showNotice("Page title is required.", "error");
       return;
     }
+    if (!sectionTitle) {
+      showNotice("Section title is required.", "error");
+      return;
+    }
+
     setSectionSaving(true);
-    setNotice("");
+    showNotice("", "success");
     try {
-      if (editingSection) {
-        await api.put(`/admin/gallery-sections/${editingSection}`, sectionForm);
-        setNotice("Section updated.");
-      } else {
-        const { data } = await api.post("/admin/gallery-sections", sectionForm);
-        setSelectedSectionId(data.section.id);
-        setNotice("Section created. You can now upload images to it.");
-      }
+      const { data } = await api.put("/admin/gallery/bundle", {
+        pageTitle,
+        intro: settings.intro || sectionForm.description,
+        sectionTitle,
+        location: sectionForm.location,
+        project: sectionForm.project,
+        description: sectionForm.description,
+        sectionId: editingSection || undefined
+      });
+
+      if (data.settings) setSettings(data.settings);
+      if (data.section?.id) setSelectedSectionId(data.section.id);
+
       setSectionForm(EMPTY_SECTION);
       setEditingSection(null);
       load();
+      showNotice(
+        editingSection
+          ? "Gallery section updated."
+          : "Gallery section saved. You can now upload images."
+      );
     } catch (err) {
-      setNotice(err.response?.data?.message || "Could not save section.");
+      const message =
+        err.response?.data?.message ||
+        (err.response?.status === 404
+          ? "Gallery API not found — restart or redeploy the backend server."
+          : null) ||
+        err.message ||
+        "Could not save section.";
+      showNotice(message, "error");
     } finally {
       setSectionSaving(false);
     }
@@ -235,22 +272,9 @@ export default function GalleryAdminPage() {
       await api.delete(`/admin/gallery-sections/${id}`);
       if (selectedSectionId === id) setSelectedSectionId("");
       load();
-      setNotice("Section deleted.");
+      showNotice("Section deleted.");
     } catch (err) {
-      setNotice(err.response?.data?.message || "Could not delete section.");
-    }
-  }
-
-  async function saveSettings() {
-    setSettingsSaving(true);
-    try {
-      const { data } = await api.put("/admin/gallery-settings/page", settings);
-      setSettings(data.settings);
-      setNotice("Gallery page header saved.");
-    } catch {
-      setNotice("Could not save page settings.");
-    } finally {
-      setSettingsSaving(false);
+      showNotice(err.response?.data?.message || "Could not delete section.", "error");
     }
   }
 
@@ -291,7 +315,7 @@ export default function GalleryAdminPage() {
 
       setEditing(null);
       load();
-      setNotice("Image updated.");
+      showNotice("Image updated.");
     } catch (err) {
       setEditError(err.response?.data?.message || "Could not save changes.");
     } finally {
@@ -304,7 +328,7 @@ export default function GalleryAdminPage() {
     await api.delete(`/admin/gallery/${id}`);
     if (editing === id) setEditing(null);
     load();
-    setNotice("Image removed.");
+    showNotice("Image removed.");
   }
 
   const itemsBySection = sections.map((section) => ({
@@ -313,46 +337,37 @@ export default function GalleryAdminPage() {
   }));
 
   return (
-    <AdminPageShell description="Create gallery sections (title, location, project) then upload images into each section. Images use SEO-friendly alt text for Google Images.">
+    <AdminPageShell description="Create a gallery section (title, location, project), save it, then upload images. Images use SEO alt text for Google Images.">
       {notice ? (
-        <p className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">
+        <p
+          className={`rounded-2xl border px-4 py-3 text-sm font-semibold ${
+            noticeType === "error"
+              ? "border-red-200 bg-red-50 text-red-800"
+              : "border-emerald-200 bg-emerald-50 text-emerald-900"
+          }`}
+        >
           {notice}
         </p>
       ) : null}
 
-      <AdminPanel title="Gallery page header" icon={Images}>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <AdminField label="Page title" required>
-            <AdminInput
-              value={settings.title}
-              onChange={(e) => setSettings((s) => ({ ...s, title: e.target.value }))}
-            />
-          </AdminField>
-          <AdminField label="Intro" className="sm:col-span-2">
-            <AdminTextarea
-              rows={2}
-              value={settings.intro}
-              onChange={(e) => setSettings((s) => ({ ...s, intro: e.target.value }))}
-            />
-          </AdminField>
-        </div>
-        <div className="mt-4 flex justify-end">
-          <AdminButton loading={settingsSaving} onClick={saveSettings}>
-            Save header
-          </AdminButton>
-        </div>
-      </AdminPanel>
-
       <AdminPanel
-        title={editingSection ? "Edit section" : "Create gallery section"}
-        description="Each section groups photos by project and location on the public gallery page."
+        title={editingSection ? "Edit gallery section" : "Gallery section & page header"}
+        description="Save the public page title and create a photo section in one step."
         icon={FolderOpen}
       >
         <form onSubmit={saveSection} className="grid gap-4 sm:grid-cols-2">
-          <AdminField label="Section title" required hint="e.g. Clean Panadura Beach">
+          <AdminField label="Page title" required hint="Shown at the top of the public gallery">
+            <AdminInput
+              value={settings.title}
+              onChange={(e) => setSettings((s) => ({ ...s, title: e.target.value }))}
+              placeholder="e.g. Beach Cleaning Project"
+            />
+          </AdminField>
+          <AdminField label="Section title" required hint="Heading for this photo group">
             <AdminInput
               value={sectionForm.title}
               onChange={(e) => setSectionForm((s) => ({ ...s, title: e.target.value }))}
+              placeholder="e.g. Clean Panadura Beach"
             />
           </AdminField>
           <AdminField label="Location" hint="e.g. Panadura, Sri Lanka">
@@ -367,16 +382,17 @@ export default function GalleryAdminPage() {
               onChange={(e) => setSectionForm((s) => ({ ...s, project: e.target.value }))}
             />
           </AdminField>
-          <AdminField label="Description" className="sm:col-span-2">
+          <AdminField label="Page intro / description" className="sm:col-span-2">
             <AdminTextarea
               rows={2}
-              value={sectionForm.description}
-              onChange={(e) => setSectionForm((s) => ({ ...s, description: e.target.value }))}
+              value={settings.intro}
+              onChange={(e) => setSettings((s) => ({ ...s, intro: e.target.value }))}
+              placeholder="Short intro shown on the gallery page"
             />
           </AdminField>
           <div className="flex flex-wrap gap-2 sm:col-span-2">
             <AdminButton type="submit" loading={sectionSaving} icon={editingSection ? Pencil : Plus}>
-              {editingSection ? "Update section" : "Create section"}
+              {editingSection ? "Update section" : "Save section"}
             </AdminButton>
             {editingSection ? (
               <AdminButton
@@ -449,13 +465,13 @@ export default function GalleryAdminPage() {
         icon={Upload}
       >
         <form onSubmit={handleAddSubmit} className="space-y-5">
-          <AdminField label="Gallery section" required>
+          <AdminField label="Gallery section" hint="Optional — uses General section if none selected">
             <select
               value={selectedSectionId}
               onChange={(e) => setSelectedSectionId(e.target.value)}
               className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-semibold text-slate-900"
             >
-              <option value="">Select section…</option>
+              <option value="">General (default)</option>
               {sections.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.title}
@@ -541,10 +557,10 @@ export default function GalleryAdminPage() {
 
           <AdminButton
             type="submit"
-            disabled={!files.length || !selectedSectionId || importJob?.active}
+            disabled={!files.length || importJob?.active}
             loading={importJob?.active}
           >
-            Upload to section
+            Upload images
           </AdminButton>
         </form>
       </AdminPanel>

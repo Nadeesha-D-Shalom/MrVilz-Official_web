@@ -211,7 +211,64 @@ async function createSection(req, res, next) {
       sort_order: Number(req.body.sortOrder ?? req.body.sort_order) || 0,
       is_active: parseActive(req.body.isActive ?? 1) ?? 1
     });
-    return res.status(201).json({ section: sectionAdmin(section.toObject()) });
+    const payload = sectionAdmin(section.toObject());
+    if (!payload?.id) {
+      return res.status(500).json({ message: "Section was created but could not be read back." });
+    }
+    return res.status(201).json({ section: payload });
+  } catch (error) {
+    return next(error);
+  }
+}
+
+async function saveGalleryBundle(req, res, next) {
+  try {
+    const pageTitle = (req.body.pageTitle || req.body.page_title || req.body.title || "").trim();
+    const intro = (req.body.intro || req.body.description || "").trim();
+    const sectionTitle = (req.body.sectionTitle || req.body.title || pageTitle).trim();
+    const location = (req.body.location || "").trim();
+    const project = (req.body.project || "").trim();
+    const sectionId = req.body.sectionId || req.body.section_id;
+
+    if (!pageTitle) {
+      return res.status(400).json({ message: "Page title is required." });
+    }
+    if (!sectionTitle) {
+      return res.status(400).json({ message: "Section title is required." });
+    }
+
+    await upsertContent("gallery", { title: pageTitle, intro });
+
+    let section;
+    const oid = toObjectId(sectionId);
+    if (oid) {
+      section = await GallerySection.findById(oid);
+      if (!section) {
+        return res.status(404).json({ message: "Gallery section not found." });
+      }
+      section.title = sectionTitle;
+      section.location = location;
+      section.project = project;
+      section.description = intro;
+      await section.save();
+    } else {
+      const slug = await uniqueSectionSlug(sectionTitle);
+      section = await GallerySection.create({
+        title: sectionTitle,
+        slug,
+        location,
+        project,
+        description: intro,
+        sort_order: 0,
+        is_active: 1
+      });
+    }
+
+    const payload = sectionAdmin(section.toObject());
+    return res.json({
+      settings: { title: pageTitle, intro },
+      section: payload
+    });
   } catch (error) {
     return next(error);
   }
@@ -489,6 +546,7 @@ module.exports = {
   createSection,
   updateSection,
   deleteSection,
+  saveGalleryBundle,
   createGalleryItems,
   updateGalleryItem,
   deleteGalleryItem,
