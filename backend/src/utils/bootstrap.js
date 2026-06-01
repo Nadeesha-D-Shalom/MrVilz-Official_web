@@ -9,6 +9,7 @@ const {
   SocialLink,
   TeamMember,
   Project,
+  GallerySection,
   GalleryItem,
   CareerPost,
   Admin
@@ -82,9 +83,90 @@ async function ensureCareerPosts() {
 }
 
 async function ensureGallery() {
+  await ensureGallerySections();
+
   const count = await GalleryItem.countDocuments();
+  if (count > 0) {
+    await migrateGalleryItemsToSections();
+    return;
+  }
+
+  const sections = await GallerySection.find().lean();
+  const bySlug = Object.fromEntries(sections.map((s) => [s.slug, s._id]));
+
+  const seeded = defaultGallery.map((item) => ({
+    ...item,
+    section_id: bySlug[item.category] || bySlug.general,
+    alt_text: `${item.title} — ${item.caption} — Mr Vilz MrVilz Nadeesha Shalom`
+  }));
+  await GalleryItem.insertMany(seeded);
+}
+
+async function ensureGallerySections() {
+  const count = await GallerySection.countDocuments();
   if (count > 0) return;
-  await GalleryItem.insertMany(defaultGallery);
+
+  await GallerySection.insertMany([
+    {
+      title: "Projects",
+      slug: "projects",
+      location: "Sri Lanka",
+      project: "Conservation Campaigns",
+      description: "Beach cleanups, tree planting, and field projects",
+      sort_order: 1,
+      is_active: 1
+    },
+    {
+      title: "Team",
+      slug: "team",
+      location: "Sri Lanka",
+      project: "Mr Vilz Team",
+      description: "Nadeesha Shalom and the Mr Vilz leadership team",
+      sort_order: 2,
+      is_active: 1
+    },
+    {
+      title: "Media",
+      slug: "media",
+      location: "Sri Lanka",
+      project: "Media Production",
+      description: "Behind the scenes and on-location production",
+      sort_order: 3,
+      is_active: 1
+    },
+    {
+      title: "General",
+      slug: "general",
+      location: "Sri Lanka",
+      project: "Mr Vilz",
+      sort_order: 99,
+      is_active: 1
+    }
+  ]);
+}
+
+async function migrateGalleryItemsToSections() {
+  const general = await GallerySection.findOne({ slug: "general" });
+  if (!general) {
+    await ensureGallerySections();
+  }
+  const sections = await GallerySection.find().lean();
+  const bySlug = Object.fromEntries(sections.map((s) => [s.slug, s._id]));
+
+  const orphans = await GalleryItem.find({
+    $or: [{ section_id: { $exists: false } }, { section_id: null }]
+  });
+
+  for (const item of orphans) {
+    const sectionId = bySlug[item.category] || bySlug.general || sections[0]?._id;
+    if (sectionId) {
+      item.section_id = sectionId;
+      if (!item.alt_text) {
+        item.alt_text = `${item.title || "Mr Vilz"} — ${item.caption || ""} — Mr Vilz Nadeesha Shalom`.trim();
+      }
+      await item.save();
+    }
+  }
 }
 
 async function ensureContentDefaults() {
@@ -97,6 +179,15 @@ async function ensureContentDefaults() {
 
   const careers = await SiteContent.findOne({ content_key: "careers" });
   if (!careers) await upsertContent("careers", defaultCareersPage);
+
+  const gallery = await SiteContent.findOne({ content_key: "gallery" });
+  if (!gallery) {
+    await upsertContent("gallery", {
+      title: "Moments that matter",
+      intro:
+        "Campaigns, cleanups, behind-the-scenes, and the people driving change across Sri Lanka — Mr Vilz official gallery."
+    });
+  }
 }
 
 async function syncTeamProfiles() {

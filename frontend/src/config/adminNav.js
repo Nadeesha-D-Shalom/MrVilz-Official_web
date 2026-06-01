@@ -12,9 +12,7 @@ import {
   ExternalLink,
   LogOut,
   Menu,
-  X,
-  ShoppingBag,
-  Store
+  X
 } from "lucide-react";
 
 export const ADMIN_NAV_GROUPS = [
@@ -25,11 +23,11 @@ export const ADMIN_NAV_GROUPS = [
     items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true }]
   },
   {
-    id: "commerce",
-    label: "Marketplace",
+    id: "gallery",
+    label: "Gallery",
     collapsible: true,
     defaultOpen: true,
-    items: [{ to: "/admin/products", label: "Products", icon: ShoppingBag }]
+    items: [{ to: "/admin/gallery", label: "Photos & sections", icon: Images }]
   },
   {
     id: "website",
@@ -40,7 +38,6 @@ export const ADMIN_NAV_GROUPS = [
       { to: "/admin/stats", label: "Stats", icon: BarChart3 },
       { to: "/admin/social", label: "Social links", icon: Share2 },
       { to: "/admin/projects", label: "Projects", icon: FolderKanban },
-      { to: "/admin/gallery", label: "Gallery", icon: Images },
       { to: "/admin/careers", label: "Career posts", icon: Briefcase }
     ]
   },
@@ -79,14 +76,14 @@ export const ADMIN_EXTRA_PAGE_TITLES = {
 
 export const ADMIN_DASHBOARD_GROUPS = [
   {
-    label: "Marketplace",
+    label: "Gallery",
     items: [
       {
-        to: "/admin/products",
-        title: "Products",
-        desc: "Add, edit, and publish items for sale",
-        icon: Store,
-        accent: "bg-orange-500/10 text-orange-700"
+        to: "/admin/gallery",
+        title: "Gallery",
+        desc: "Sections, locations, projects, and photo uploads",
+        icon: Images,
+        accent: "bg-rose-500/10 text-rose-700"
       }
     ]
   },
@@ -113,13 +110,6 @@ export const ADMIN_DASHBOARD_GROUPS = [
         desc: "Campaigns and progress updates",
         icon: FolderKanban,
         accent: "bg-emerald-500/10 text-emerald-700"
-      },
-      {
-        to: "/admin/gallery",
-        title: "Gallery",
-        desc: "Upload, edit, and manage gallery photos",
-        icon: Images,
-        accent: "bg-rose-500/10 text-rose-700"
       },
       {
         to: "/admin/careers",

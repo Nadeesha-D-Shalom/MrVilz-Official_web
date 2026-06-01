@@ -20,14 +20,11 @@ import GalleryAdminPage from "./pages/admin/GalleryAdminPage";
 import AdminsPage from "./pages/admin/AdminsPage";
 import ProfilePage from "./pages/admin/ProfilePage";
 import AdminCareersPage from "./pages/admin/CareersPage";
-import ProductsPage from "./pages/admin/ProductsPage";
 
 const CareersPage = lazy(() => import("./pages/public/CareersPage"));
 const CareerApplyPage = lazy(() => import("./pages/public/CareerApplyPage"));
 const JoinTeamPage = lazy(() => import("./pages/public/JoinTeamPage"));
 const GalleryPage = lazy(() => import("./pages/public/GalleryPage"));
-const MarketplacePage = lazy(() => import("./pages/public/MarketplacePage"));
-const ProductDetailPage = lazy(() => import("./pages/public/ProductDetailPage"));
 const ContactPage = lazy(() => import("./pages/public/ContactPage"));
 const DiscoverPage = lazy(() => import("./pages/public/DiscoverPage"));
 const TeamMembersPage = lazy(() => import("./pages/public/TeamMembersPage"));
@@ -83,22 +80,6 @@ export default function App() {
               }
             />
             <Route
-              path="/marketplace"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <MarketplacePage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/marketplace/:slug"
-              element={
-                <Suspense fallback={<PageLoader />}>
-                  <ProductDetailPage />
-                </Suspense>
-              }
-            />
-            <Route
               path="/contact"
               element={
                 <Suspense fallback={<PageLoader />}>
@@ -144,7 +125,6 @@ export default function App() {
             <Route path="job-applications" element={<JobApplicationsPage />} />
             <Route path="gallery" element={<GalleryAdminPage />} />
             <Route path="careers" element={<AdminCareersPage />} />
-            <Route path="products" element={<ProductsPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route
               path="admins"

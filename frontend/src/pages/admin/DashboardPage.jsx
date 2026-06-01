@@ -30,7 +30,7 @@ export default function DashboardPage() {
           </p>
           <h2 className="mt-2 font-display text-3xl font-extrabold sm:text-4xl">Welcome back</h2>
           <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/70 sm:text-base">
-            Manage your website, marketplace, team, and applications from one modern console.
+            Manage gallery sections, website content, team, and applications from one console.
           </p>
           <Link
             to="/"

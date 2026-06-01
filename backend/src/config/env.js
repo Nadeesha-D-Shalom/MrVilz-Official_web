@@ -29,6 +29,10 @@ module.exports = {
     password: process.env.ADMIN_PASSWORD || "MrVilz@Admin2026"
   },
   clientOrigin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+  publicSiteUrl:
+    process.env.PUBLIC_SITE_URL ||
+    process.env.SITE_URL ||
+    (process.env.NODE_ENV === "production" ? "https://www.mrvilz.com" : ""),
   uploadMaxMb: Number(process.env.UPLOAD_MAX_MB) || 10,
   /** Optional — used only by scripts/migrate-to-mongo.js */
   mysql: {

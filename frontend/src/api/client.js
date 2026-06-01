@@ -59,16 +59,6 @@ export async function fetchGallery() {
   return data;
 }
 
-export async function fetchMarketplace() {
-  const { data } = await api.get("/public/marketplace");
-  return data;
-}
-
-export async function fetchProduct(slug) {
-  const { data } = await api.get(`/public/marketplace/${encodeURIComponent(slug)}`);
-  return data;
-}
-
 export async function submitJoinTeam(payload) {
   const { data } = await api.post("/public/join-team", payload);
   return data;

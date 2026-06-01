@@ -16,6 +16,8 @@ services:
         generateValue: true
       - key: CLIENT_ORIGIN
         sync: false
+      - key: PUBLIC_SITE_URL
+        value: https://www.mrvilz.com
       - key: ADMIN_USERNAME
         sync: false
       - key: ADMIN_PASSWORD
@@ -34,6 +36,9 @@ services:
       - type: rewrite
         source: /uploads/*
         destination: https://mrvilz-api.onrender.com/uploads/*
+      - type: rewrite
+        source: /sitemap-images.xml
+        destination: https://mrvilz-api.onrender.com/sitemap-images.xml
       - type: rewrite
         source: /*
         destination: /index.html

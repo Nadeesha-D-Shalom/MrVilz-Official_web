@@ -96,12 +96,30 @@ const ContactMessage = mongoose.model(
   )
 );
 
+const GallerySection = mongoose.model(
+  "GallerySection",
+  new mongoose.Schema(
+    {
+      title: { type: String, required: true },
+      slug: { type: String, unique: true, sparse: true },
+      location: String,
+      project: String,
+      description: String,
+      sort_order: { type: Number, default: 0 },
+      is_active: { type: Number, default: 1 }
+    },
+    { timestamps: ts }
+  )
+);
+
 const GalleryItem = mongoose.model(
   "GalleryItem",
   new mongoose.Schema(
     {
+      section_id: { type: mongoose.Schema.Types.ObjectId, ref: "GallerySection" },
       title: String,
       caption: String,
+      alt_text: String,
       image_url: String,
       file_hash: String,
       category: { type: String, default: "general" },
@@ -222,6 +240,7 @@ module.exports = {
   TeamMember,
   Project,
   ContactMessage,
+  GallerySection,
   GalleryItem,
   TeamApplication,
   CareerPost,

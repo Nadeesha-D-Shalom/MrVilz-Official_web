@@ -7,6 +7,7 @@ Allow: /images/
 
 User-agent: Googlebot-Image
 Allow: /images/
+Allow: /uploads/
 
 User-agent: Bingbot
 Allow: /

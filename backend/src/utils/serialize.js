@@ -205,11 +205,13 @@ function jobAppAdmin(doc) {
 function galleryPublic(doc) {
   const o = withId(doc);
   if (!o) return null;
+  const { resolveMediaUrl } = require("./mediaUrl");
   return {
     id: o.id,
     title: o.title,
     caption: o.caption,
-    imageUrl: o.image_url,
+    imageUrl: resolveMediaUrl(o.image_url),
+    altText: o.alt_text || o.title,
     category: o.category
   };
 }

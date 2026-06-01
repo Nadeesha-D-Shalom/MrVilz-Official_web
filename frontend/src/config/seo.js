@@ -52,8 +52,10 @@ export const ORGANIZATION = {
     "environment jobs Sri Lanka",
     "media production jobs Sri Lanka",
     "conservation careers Sri Lanka",
-    "Mr Vilz entertainment",
-    "Mr Vilz environment"
+    "Mr Vilz gallery",
+    "Nadeesha Shalom",
+    "Nadeesha Mr Vilz",
+    "nadeesha shalom mrvilz"
   ]
 };
 
@@ -155,14 +157,10 @@ export const ROUTE_SEO = {
   },
   "/gallery": {
     title: `Gallery — ${SITE_TAB_NAME}`,
-    description: "Photos from Mr Vilz beach cleanups, tree planting, team, and field media production in Sri Lanka.",
-    keywords: "Mr Vilz gallery, mrvilz photos, environment cleanup images Sri Lanka"
-  },
-  "/marketplace": {
-    title: `Marketplace — ${SITE_TAB_NAME}`,
     description:
-      "Shop Mr Vilz marketplace — eco-friendly products and merchandise. Browse items, compare prices, and order online.",
-    keywords: "Mr Vilz marketplace, mrvilz shop, eco products Sri Lanka, buy online Mr Vilz"
+      "Official Mr Vilz (MrVilz) photo gallery — Nadeesha Shalom, beach cleanups, conservation projects, and team moments in Sri Lanka.",
+    keywords:
+      "Mr Vilz gallery, mrvilz photos, Nadeesha Shalom, Nadeesha Mr Vilz, environment cleanup images Sri Lanka"
   },
   "/contact": {
     title: `Contact — ${SITE_TAB_NAME}`,
@@ -221,17 +219,6 @@ export function seoForPath(pathname) {
       title: `${name} — Mr Vilz Team — ${SITE_TAB_NAME}`,
       description: `${name} at Mr Vilz — Sri Lankan environmental, media, and creative organization. Official team profile.`,
       keywords: `Mr Vilz team, ${name}, mrvilz`,
-      url: absoluteUrl(pathname)
-    };
-  }
-
-  const productMatch = pathname.match(/^\/marketplace\/([^/]+)$/);
-  if (productMatch) {
-    const slug = productMatch[1].replace(/-/g, " ");
-    return {
-      title: `${slug} — Marketplace — ${SITE_TAB_NAME}`,
-      description: `Buy ${slug} from the Mr Vilz marketplace. Eco-friendly products supporting conservation in Sri Lanka.`,
-      keywords: `Mr Vilz marketplace, ${slug}, mrvilz shop`,
       url: absoluteUrl(pathname)
     };
   }

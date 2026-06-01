@@ -9,6 +9,10 @@
       "destination": "https://mrvilz-official-web.onrender.com/uploads/:path*"
     },
     {
+      "source": "/sitemap-images.xml",
+      "destination": "https://mrvilz-official-web.onrender.com/sitemap-images.xml"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
