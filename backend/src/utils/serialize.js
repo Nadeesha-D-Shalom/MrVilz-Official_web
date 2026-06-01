@@ -219,6 +219,7 @@ function galleryPublic(doc) {
 function productPublic(doc, { full = false } = {}) {
   const o = withId(doc);
   if (!o) return null;
+  const { resolveMediaUrl } = require("./mediaUrl");
   const base = {
     id: o.id,
     title: o.title,
@@ -227,7 +228,7 @@ function productPublic(doc, { full = false } = {}) {
     price: o.price,
     compareAtPrice: o.compare_at_price,
     currency: o.currency || "LKR",
-    imageUrl: o.image_url,
+    imageUrl: resolveMediaUrl(o.image_url),
     category: o.category || "general",
     stock: o.stock ?? 0,
     condition: o.condition || "new",
@@ -249,6 +250,8 @@ function productPublic(doc, { full = false } = {}) {
 function productAdmin(doc) {
   const o = withId(doc);
   if (!o) return null;
+  const { resolveMediaUrl } = require("./mediaUrl");
+  const imageUrl = resolveMediaUrl(o.image_url);
   return {
     id: o.id,
     title: o.title,
@@ -260,8 +263,8 @@ function productAdmin(doc) {
     compare_at_price: o.compare_at_price,
     compareAtPrice: o.compare_at_price,
     currency: o.currency || "LKR",
-    image_url: o.image_url,
-    imageUrl: o.image_url,
+    image_url: imageUrl,
+    imageUrl,
     category: o.category || "general",
     tags: o.tags || [],
     sku: o.sku || "",

@@ -3,6 +3,7 @@
   <url><loc>https://www.mrvilz.com/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://www.mrvilz.com/discover</loc><changefreq>weekly</changefreq><priority>0.98</priority></url>
   <url><loc>https://www.mrvilz.com/gallery</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://www.mrvilz.com/marketplace</loc><changefreq>weekly</changefreq><priority>0.85</priority></url>
   <url><loc>https://www.mrvilz.com/careers</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.mrvilz.com/join</loc><changefreq>monthly</changefreq><priority>0.85</priority></url>
   <url><loc>https://www.mrvilz.com/contact</loc><changefreq>monthly</changefreq><priority>0.75</priority></url>

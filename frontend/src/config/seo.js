@@ -162,6 +162,12 @@ export const ROUTE_SEO = {
     keywords:
       "Mr Vilz gallery, mrvilz photos, Nadeesha Shalom, Nadeesha Mr Vilz, environment cleanup images Sri Lanka"
   },
+  "/marketplace": {
+    title: `Marketplace — ${SITE_TAB_NAME}`,
+    description:
+      "Shop the Mr Vilz marketplace — eco-friendly products and merchandise. Browse items, compare prices, and order online.",
+    keywords: "Mr Vilz marketplace, mrvilz shop, buy online Mr Vilz, eco products Sri Lanka"
+  },
   "/contact": {
     title: `Contact — ${SITE_TAB_NAME}`,
     description: "Contact Mr Vilz for partnerships, media, volunteering, jobs, and environmental projects in Sri Lanka.",
@@ -219,6 +225,17 @@ export function seoForPath(pathname) {
       title: `${name} — Mr Vilz Team — ${SITE_TAB_NAME}`,
       description: `${name} at Mr Vilz — Sri Lankan environmental, media, and creative organization. Official team profile.`,
       keywords: `Mr Vilz team, ${name}, mrvilz`,
+      url: absoluteUrl(pathname)
+    };
+  }
+
+  const productMatch = pathname.match(/^\/marketplace\/([^/]+)$/);
+  if (productMatch) {
+    const name = productMatch[1].replace(/-/g, " ");
+    return {
+      title: `${name} — Marketplace — ${SITE_TAB_NAME}`,
+      description: `Buy ${name} from the Mr Vilz marketplace. Eco-friendly products supporting conservation in Sri Lanka.`,
+      keywords: `Mr Vilz marketplace, ${name}, mrvilz shop`,
       url: absoluteUrl(pathname)
     };
   }

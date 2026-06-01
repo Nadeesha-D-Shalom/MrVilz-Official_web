@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Star, ShoppingCart } from "lucide-react";
-import LazyImage from "../ui/LazyImage";
+import MediaImage from "../ui/MediaImage";
 
 function formatPrice(amount, currency = "LKR") {
   if (amount == null || Number.isNaN(Number(amount))) return "";
@@ -23,7 +23,7 @@ export default function ProductCard({ product }) {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-lg ring-1 ring-brand-ink/5 transition hover:-translate-y-1 hover:shadow-xl">
       <Link to={`/marketplace/${product.slug}`} className="relative block">
-        <LazyImage
+        <MediaImage
           src={product.imageUrl}
           alt={product.title}
           aspectClass="aspect-square"

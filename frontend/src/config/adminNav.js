@@ -8,6 +8,8 @@ import {
   UserPlus,
   Briefcase,
   Images,
+  ShoppingBag,
+  Store,
   Shield,
   ExternalLink,
   LogOut,
@@ -21,6 +23,13 @@ export const ADMIN_NAV_GROUPS = [
     label: "Overview",
     collapsible: false,
     items: [{ to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true }]
+  },
+  {
+    id: "marketplace",
+    label: "Marketplace",
+    collapsible: true,
+    defaultOpen: true,
+    items: [{ to: "/admin/products", label: "Products", icon: ShoppingBag }]
   },
   {
     id: "gallery",
@@ -75,6 +84,18 @@ export const ADMIN_EXTRA_PAGE_TITLES = {
 };
 
 export const ADMIN_DASHBOARD_GROUPS = [
+  {
+    label: "Marketplace",
+    items: [
+      {
+        to: "/admin/products",
+        title: "Marketplace",
+        desc: "Add and manage products for sale",
+        icon: Store,
+        accent: "bg-orange-500/10 text-orange-700"
+      }
+    ]
+  },
   {
     label: "Gallery",
     items: [
